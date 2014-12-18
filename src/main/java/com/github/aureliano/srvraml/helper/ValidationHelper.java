@@ -2,6 +2,10 @@ package com.github.aureliano.srvraml.helper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
+
+import org.raml.parser.rule.ValidationResult;
+import org.raml.parser.visitor.RamlValidationService;
 
 public final class ValidationHelper {
 
@@ -25,5 +29,25 @@ public final class ValidationHelper {
 		if (!ramlFile.getName().endsWith(".raml")) {
 			throw new RuntimeException("Raml file must have suffix '.raml'. Found => .../" + ramlFile.getName());
 		}
+	}
+	
+	public static void validateRamlFile(File ramlFile) {
+		String location = ramlFile.getPath().replaceFirst(new File("").getAbsolutePath(), "").replaceFirst("^/", "");
+		List<ValidationResult> result = RamlValidationService.createDefault().validate(location);
+
+		if (result == null || result.isEmpty()) {
+			return;
+		}
+		
+		StringBuilder message = new StringBuilder("Raml validation has found " + result.size() + " errors. See details:");
+		for (ValidationResult v : result) {
+			message
+				.append("\n")
+				.append(v.getLevel().name() + ": ")
+				.append(v.getMessage())
+				.append(" (" + ramlFile.getName() + ":" + v.getLine() + ")");
+		}
+		
+		throw new RuntimeException(message.toString());
 	}
 }

@@ -48,7 +48,18 @@ public class ValidationHelperTest {
 		}
 	}
 	
+	@Test
 	public void testValidateRamlFilePath() throws Exception {
 		ValidationHelper.validateRamlFilePath(new File("src/test/resources/modelFile.raml"));
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testValidateRamlFileWithError() {
+		ValidationHelper.validateRamlFile(new File("src/test/resources/modelFile.raml"));
+	}
+	
+	@Test
+	public void testValidateRamlFile() {
+		ValidationHelper.validateRamlFile(new File("src/test/resources/raml_definition.raml"));
 	}
 }

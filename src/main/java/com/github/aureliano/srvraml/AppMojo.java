@@ -25,8 +25,9 @@ public class AppMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
 			ValidationHelper.validateRamlFilePath(this.ramlFile);
+			ValidationHelper.validateRamlFile(this.ramlFile);
 		} catch (Exception ex) {
-			throw new MojoExecutionException("Invalid Raml file: " + ex.getMessage());
+			throw new MojoExecutionException(ex.getMessage());
 		}
 	}
 }
