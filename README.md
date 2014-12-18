@@ -1,4 +1,4 @@
-jsrv-raml
+srvraml-maven-plugin
 =========
 
-Maven archetype for generating Java Web RESTful projects based on RAML protocol.
+Maven plugin for generating Java Web RESTful sources based on RAML protocol.
