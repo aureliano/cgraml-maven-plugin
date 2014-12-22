@@ -62,4 +62,19 @@ public class ValidationHelperTest {
 	public void testValidateRamlFile() {
 		ValidationHelper.validateRamlFile(new File("src/test/resources/raml_definition.raml"));
 	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testValidateResourcesPackageWithNullParam() {
+		ValidationHelper.validateResourcesPackage(null);
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testValidateResourcesPackageWithEmptyParam() {
+		ValidationHelper.validateResourcesPackage("");
+	}
+	
+	@Test
+	public void testValidateResourcesPackage() {
+		ValidationHelper.validateResourcesPackage("com.github.aureliano");
+	}
 }

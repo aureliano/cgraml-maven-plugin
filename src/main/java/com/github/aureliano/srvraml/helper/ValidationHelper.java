@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.raml.parser.rule.ValidationResult;
 import org.raml.parser.visitor.RamlValidationService;
 
@@ -49,5 +50,11 @@ public final class ValidationHelper {
 		}
 		
 		throw new RuntimeException(message.toString());
+	}
+	
+	public static void validateResourcesPackage(String pkg) {
+		if (StringUtils.isEmpty(pkg)) {
+			throw new RuntimeException("Resources package must be provided.");
+		}
 	}
 }
