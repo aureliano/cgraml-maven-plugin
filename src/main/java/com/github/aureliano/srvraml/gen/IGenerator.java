@@ -11,17 +11,17 @@ public interface IGenerator {
 	
 	public abstract IGenerator withLogger(Log logger);
 	
-	public abstract IGenerator withResourcesPackage(String resourcesPackage);
+	public abstract IGenerator withBasePackageName(String basePackageName);
 	
-	public abstract IGenerator withGeneratedSourcesDirectory(String path);
+	public abstract IGenerator withSourceDirectory(String sourceDirectory);
 	
 	public abstract Raml getRaml();
 	
 	public abstract Log getLogger();
 	
-	public abstract String getResourcesPackage();
+	public abstract String getBasePackageName();
 	
-	public abstract String getGeneratedSourcesDirectory();
+	public abstract String getSourceDirectory();
 	
 	public abstract String outputPath();
 	

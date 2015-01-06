@@ -8,7 +8,6 @@ public final class GeneratorFactory {
 		}
 		
 		switch (type) {
-			case WEB_XML : return new WebXmlGenerator();
 			default : return null;
 		}
 	}

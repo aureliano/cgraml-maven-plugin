@@ -21,7 +21,7 @@ public class CodeGenerator extends AbstractGenerator {
 				.createGenerator(generatorType)
 				.withLogger(this.logger)
 				.withRaml(this.raml)
-				.withResourcesPackage(this.resourcesPackage);
+				.withBasePackageName(this.basePackageName);
 	}
 	
 	private void configure() {
@@ -29,8 +29,8 @@ public class CodeGenerator extends AbstractGenerator {
 			super.logger = new SystemStreamLog();
 		}
 		
-		if (super.resourcesPackage == null) {
-			super.resourcesPackage = "";
+		if (super.basePackageName == null) {
+			super.basePackageName = "";
 		}
 	}
 

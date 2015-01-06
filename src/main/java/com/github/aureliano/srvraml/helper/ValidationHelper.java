@@ -14,21 +14,17 @@ public final class ValidationHelper {
 		super();
 	}
 	
-	public static void validateRamlFilePath(File ramlFile) throws Exception {
-		if (ramlFile == null) {
-			throw new FileNotFoundException("A Raml file path is required for execution.");
+	public static void validateRamlFilePath(File sourcePath) throws Exception {
+		if (sourcePath == null) {
+			throw new FileNotFoundException("A source path is required for execution.");
 		}
 		
-		if (!ramlFile.exists()) {
-			throw new FileNotFoundException("Raml file " + ramlFile.getPath() + " does not exist.");
+		if (!sourcePath.exists()) {
+			throw new FileNotFoundException("Source directory " + sourcePath.getPath() + " does not exist.");
 		}
 		
-		if (ramlFile.isDirectory()) {
-			throw new RuntimeException(ramlFile.getPath() + " is a directory.");
-		}
-		
-		if (!ramlFile.getName().endsWith(".raml")) {
-			throw new RuntimeException("Raml file must have suffix '.raml'. Found => .../" + ramlFile.getName());
+		if (!sourcePath.isDirectory()) {
+			throw new RuntimeException(sourcePath.getPath() + " is not a directory.");
 		}
 	}
 	
@@ -52,9 +48,9 @@ public final class ValidationHelper {
 		throw new RuntimeException(message.toString());
 	}
 	
-	public static void validateResourcesPackage(String pkg) {
+	public static void validateBasePackageName(String pkg) {
 		if (StringUtils.isEmpty(pkg)) {
-			throw new RuntimeException("Resources package must be provided.");
+			throw new RuntimeException("Base package name must be provided.");
 		}
 	}
 }

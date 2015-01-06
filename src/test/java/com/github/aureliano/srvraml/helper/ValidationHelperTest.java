@@ -13,7 +13,7 @@ public class ValidationHelperTest {
 		try {
 			ValidationHelper.validateRamlFilePath(null);
 		} catch (Exception ex) {
-			Assert.assertEquals("A Raml file path is required for execution.", ex.getMessage());
+			Assert.assertEquals("A source path is required for execution.", ex.getMessage());
 			throw ex;
 		}
  	}
@@ -23,34 +23,24 @@ public class ValidationHelperTest {
 		try {
 			ValidationHelper.validateRamlFilePath(new File("fileNotFound"));
 		} catch (Exception ex) {
-			Assert.assertEquals("Raml file fileNotFound does not exist.", ex.getMessage());
+			Assert.assertEquals("Source directory fileNotFound does not exist.", ex.getMessage());
 			throw ex;
 		}
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testRamlFileIsDirectory() throws Exception {
+	public void testRamlFileIsNotDirectory() throws Exception {
 		try {
-			ValidationHelper.validateRamlFilePath(new File("src/test/resources"));
+			ValidationHelper.validateRamlFilePath(new File("src/test/resources/raml_definition.raml"));
 		} catch (Exception ex) {
-			Assert.assertEquals("src/test/resources is a directory.", ex.getMessage());
-			throw ex;
-		}
-	}
-	
-	@Test(expected = RuntimeException.class)
-	public void testRamlFileWrongSuffix() throws Exception {
-		try {
-			ValidationHelper.validateRamlFilePath(new File("src/test/resources/modelFile"));
-		} catch (Exception ex) {
-			Assert.assertEquals("Raml file must have suffix '.raml'. Found => .../modelFile", ex.getMessage());
+			Assert.assertEquals("src/test/resources/raml_definition.raml is not a directory.", ex.getMessage());
 			throw ex;
 		}
 	}
 	
 	@Test
 	public void testValidateRamlFilePath() throws Exception {
-		ValidationHelper.validateRamlFilePath(new File("src/test/resources/modelFile.raml"));
+		ValidationHelper.validateRamlFilePath(new File("src/test/resources"));
 	}
 	
 	@Test(expected = RuntimeException.class)
@@ -65,16 +55,16 @@ public class ValidationHelperTest {
 	
 	@Test(expected = RuntimeException.class)
 	public void testValidateResourcesPackageWithNullParam() {
-		ValidationHelper.validateResourcesPackage(null);
+		ValidationHelper.validateBasePackageName(null);
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testValidateResourcesPackageWithEmptyParam() {
-		ValidationHelper.validateResourcesPackage("");
+	public void testValidateBasePackageNameWithEmptyParam() {
+		ValidationHelper.validateBasePackageName("");
 	}
 	
 	@Test
-	public void testValidateResourcesPackage() {
-		ValidationHelper.validateResourcesPackage("com.github.aureliano");
+	public void testValidateBasePackageName() {
+		ValidationHelper.validateBasePackageName("com.github.aureliano");
 	}
 }

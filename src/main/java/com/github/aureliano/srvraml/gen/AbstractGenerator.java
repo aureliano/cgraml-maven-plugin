@@ -14,8 +14,8 @@ public abstract class AbstractGenerator implements IGenerator {
 
 	protected Raml raml;
 	protected Log logger;
-	protected String generatedSourcesDirectory;
-	protected String resourcesPackage;
+	protected String sourceDirectory;
+	protected String basePackageName;
 	
 	public AbstractGenerator() {
 		super();
@@ -23,7 +23,7 @@ public abstract class AbstractGenerator implements IGenerator {
 	
 	protected void saveFile(String content) {
 		try {
-			File genDir = new File(this.getGeneratedSourcesDirectory());
+			File genDir = new File(this.getSourceDirectory());
 			if (!genDir.exists()) {
 				FileUtils.forceMkdir(genDir);
 			}
@@ -36,7 +36,7 @@ public abstract class AbstractGenerator implements IGenerator {
 	}
 	
 	public File outputFile() {
-		return new File(this.getGeneratedSourcesDirectory() + File.separator + this.outputPath());
+		return new File(this.getSourceDirectory() + File.separator + this.outputPath());
 	}
 	
 	@Override
@@ -52,8 +52,8 @@ public abstract class AbstractGenerator implements IGenerator {
 	}
 	
 	@Override
-	public IGenerator withResourcesPackage(String resourcesPackage) {
-		this.resourcesPackage = resourcesPackage;
+	public IGenerator withBasePackageName(String basePackageName) {
+		this.basePackageName = basePackageName;
 		return this;
 	}
 
@@ -68,22 +68,22 @@ public abstract class AbstractGenerator implements IGenerator {
 	}
 	
 	@Override
-	public String getResourcesPackage() {
-		return this.resourcesPackage;
+	public String getBasePackageName() {
+		return this.basePackageName;
 	}
 
 	@Override
-	public IGenerator withGeneratedSourcesDirectory(String path) {
-		this.generatedSourcesDirectory = path;
+	public IGenerator withSourceDirectory(String sourceDirectory) {
+		this.sourceDirectory = sourceDirectory;
 		return this;
 	}
 
 	@Override
-	public String getGeneratedSourcesDirectory() {
-		if (StringUtils.isEmpty(this.generatedSourcesDirectory)) {
-			this.generatedSourcesDirectory = IGenerator.DEFAULT_GEN_DIRECTORY;
+	public String getSourceDirectory() {
+		if (StringUtils.isEmpty(this.sourceDirectory)) {
+			this.sourceDirectory = IGenerator.DEFAULT_GEN_DIRECTORY;
 		}
 		
-		return this.generatedSourcesDirectory;
+		return this.sourceDirectory;
 	}
 }

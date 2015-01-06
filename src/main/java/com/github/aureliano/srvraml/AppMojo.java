@@ -1,7 +1,12 @@
 package com.github.aureliano.srvraml;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -12,53 +17,93 @@ import com.github.aureliano.srvraml.helper.RamlHelper;
 import com.github.aureliano.srvraml.helper.ValidationHelper;
 
 /**
- * Maven plugin for generating Java Web RESTful sources based on RAML protocol.
+ * Maven plugin for generating Java Client RESTful sources based on RAML protocol.
  * 
  * @author Aureliano
- * @goal gen 
+ * @goal generate
  */
 public class AppMojo extends AbstractMojo {
 
 	/**
-	 * @parameter expression="${ramlFile}"
+	 * @parameter expression="${sourceDirectory}"
 	 */
-	private File ramlFile;
+	private File sourceDirectory;
 	
 	/**
-	 * @parameter expression="${resourcesPackage}"
+	 * @parameter expression="${basePackageName}"
 	 */
-	private String resourcesPackage;
+	private String basePackageName;
 	
 	/**
-	 * @parameter expression="${generatedSourcesDirectory}"
+	 * @parameter expression="${removeOldOutput}"
 	 */
-	private String generatedSourcesDirectory;
+	private boolean removeOldOutput;
 	
+	/**
+	 * @parameter skip="${skip}"
+	 */
+    private boolean skip;
+		
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		try {
-			ValidationHelper.validateRamlFilePath(this.ramlFile);
-			ValidationHelper.validateRamlFile(this.ramlFile);
-			ValidationHelper.validateResourcesPackage(this.resourcesPackage);
-		} catch (Exception ex) {
-			throw new MojoExecutionException(ex.getMessage());
-		}
+		if (this.skip) {
+            super.getLog().info("Skipping execution...");
+            return;
+        }		
 		
-		this.printExecutionInformation();
-		this.buildCodeGenerator().execute();
+		this.validateExecution();
+		try {
+			this.executeMojo();
+		} catch (Exception ex) {
+			throw new MojoExecutionException(ex.getMessage(), ex);
+		}
 	}
 	
 	private IGenerator buildCodeGenerator() {
 		return new CodeGenerator()
-			.withRaml(RamlHelper.parseModel(this.ramlFile))
+			.withRaml(RamlHelper.parseModel(this.sourceDirectory))
 			.withLogger(super.getLog())
-			.withResourcesPackage(this.resourcesPackage)
-			.withGeneratedSourcesDirectory(this.generatedSourcesDirectory);
+			.withBasePackageName(this.basePackageName);
 	}
 	
 	private void printExecutionInformation() {
-		super.getLog().info("RAML resource location: " + this.ramlFile.getPath());
-		super.getLog().info("Project resources package: " + this.resourcesPackage);
-		super.getLog().info("Sources directory target: " + this.generatedSourcesDirectory + " (" + IGenerator.DEFAULT_GEN_DIRECTORY + ") if null");
+		super.getLog().info("RAML resource location: " + this.sourceDirectory.getPath());
+		super.getLog().info("Base package name: " + this.basePackageName);
+		super.getLog().info("Sources directory target: " + this.sourcesTargetDirectory() + " (" + IGenerator.DEFAULT_GEN_DIRECTORY + ") if null");
+		super.getLog().info("Remove old output? " + this.removeOldOutput);
+	}
+	
+	private void executeMojo() throws IOException {
+		this.printExecutionInformation();
+		
+		if (this.removeOldOutput) {
+			this.cleanGeneratedCode();
+		}
+		
+		throw new UnsupportedOperationException("Code generation not implemented yet");
+		//this.buildCodeGenerator().execute();
+	}
+	
+	private void cleanGeneratedCode() throws IOException {
+		String generatedSourcesDir = this.sourcesTargetDirectory() + File.separator + "gen";
+		super.getLog().info("Deleting generated sources directory " + generatedSourcesDir);
+		
+		FileUtils.deleteDirectory(new File(generatedSourcesDir));
+	}
+
+	private void validateExecution() throws MojoExecutionException {
+		try {
+			ValidationHelper.validateRamlFilePath(this.sourceDirectory);
+			ValidationHelper.validateBasePackageName(this.basePackageName);
+		} catch (Exception ex) {
+			throw new MojoExecutionException(ex.getMessage());
+		}
+	}
+	
+	private String sourcesTargetDirectory() {
+		String[] baseDir = new String[] { "src", "main", "java" };
+		String[] dir = this.basePackageName.split(Pattern.quote("."));
+
+		return StringUtils.join(ArrayUtils.addAll(baseDir, dir), File.separator);
 	}
 }
