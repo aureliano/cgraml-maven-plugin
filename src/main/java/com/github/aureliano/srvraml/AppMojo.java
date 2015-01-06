@@ -11,9 +11,9 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import com.github.aureliano.srvraml.gen.CodeGenerator;
+import com.github.aureliano.srvraml.gen.Configuration;
+import com.github.aureliano.srvraml.gen.Generator;
 import com.github.aureliano.srvraml.gen.ICodeGenerator;
-import com.github.aureliano.srvraml.helper.RamlHelper;
 import com.github.aureliano.srvraml.helper.ValidationHelper;
 
 /**
@@ -59,13 +59,6 @@ public class AppMojo extends AbstractMojo {
 		}
 	}
 	
-	private ICodeGenerator buildCodeGenerator() {
-		return new CodeGenerator()
-			.withRaml(RamlHelper.parseModel(this.sourceDirectory))
-			.withLogger(super.getLog())
-			.withBasePackageName(this.basePackageName);
-	}
-	
 	private void printExecutionInformation() {
 		super.getLog().info("RAML resource location: " + this.sourceDirectory.getPath());
 		super.getLog().info("Base package name: " + this.basePackageName);
@@ -80,8 +73,7 @@ public class AppMojo extends AbstractMojo {
 			this.cleanGeneratedCode();
 		}
 		
-		throw new UnsupportedOperationException("Code generation not implemented yet");
-		//this.buildCodeGenerator().execute();
+		this.createGenerator().run();
 	}
 	
 	private void cleanGeneratedCode() throws IOException {
@@ -98,6 +90,17 @@ public class AppMojo extends AbstractMojo {
 		} catch (Exception ex) {
 			throw new MojoExecutionException(ex.getMessage());
 		}
+	}
+	
+	private Generator createGenerator() {
+		return new Generator()
+			.withConfiguration(
+				new Configuration()
+				.withBasePackageName(this.basePackageName)
+				.withSourceDirectory(this.sourceDirectory)
+				.withGeneratedSourcesTarget(new File(this.sourcesTargetDirectory()))
+				.withLogger(super.getLog())
+			);
 	}
 	
 	private String sourcesTargetDirectory() {
