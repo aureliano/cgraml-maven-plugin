@@ -59,13 +59,6 @@ public class AppMojo extends AbstractMojo {
 		}
 	}
 	
-	private void printExecutionInformation() {
-		super.getLog().info("RAML resource location: " + this.sourceDirectory.getPath());
-		super.getLog().info("Base package name: " + this.basePackageName);
-		super.getLog().info("Sources directory target: " + this.sourcesTargetDirectory() + " (" + ICodeGenerator.DEFAULT_GEN_DIRECTORY + ") if null");
-		super.getLog().info("Remove old output? " + this.removeOldOutput);
-	}
-	
 	private void executeMojo() throws IOException {
 		this.printExecutionInformation();
 		
@@ -74,6 +67,13 @@ public class AppMojo extends AbstractMojo {
 		}
 		
 		this.createGenerator().run();
+	}
+	
+	private void printExecutionInformation() {
+		super.getLog().info("RAML resource location: " + this.sourceDirectory.getPath());
+		super.getLog().info("Base package name: " + this.basePackageName);
+		super.getLog().info("Sources directory target: " + this.sourcesTargetDirectory() + " (" + ICodeGenerator.DEFAULT_GEN_DIRECTORY + ") if null");
+		super.getLog().info("Remove old output? " + this.removeOldOutput);
 	}
 	
 	private void cleanGeneratedCode() throws IOException {

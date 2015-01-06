@@ -1,5 +1,7 @@
 package com.github.aureliano.srvraml.gen;
 
+import java.io.File;
+
 import org.apache.maven.plugin.logging.Log;
 import org.raml.model.Raml;
 
@@ -13,7 +15,7 @@ public interface ICodeGenerator {
 	
 	public abstract ICodeGenerator withBasePackageName(String basePackageName);
 	
-	public abstract ICodeGenerator withSourceDirectory(String sourceDirectory);
+	public abstract ICodeGenerator withGeneratedSourcesTarget(File generatedSourcesTarget);
 	
 	public abstract Raml getRaml();
 	
@@ -21,9 +23,9 @@ public interface ICodeGenerator {
 	
 	public abstract String getBasePackageName();
 	
-	public abstract String getSourceDirectory();
+	public abstract File getGeneratedSourcesTarget();
 	
 	public abstract String outputPath();
 	
-	public static final String DEFAULT_GEN_DIRECTORY = "srvraml-maven-plugin";
+	public static final File DEFAULT_GEN_DIRECTORY = new File("srvraml-maven-plugin");
 }

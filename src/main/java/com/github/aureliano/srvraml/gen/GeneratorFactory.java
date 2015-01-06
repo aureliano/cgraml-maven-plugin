@@ -8,6 +8,7 @@ public final class GeneratorFactory {
 		}
 		
 		switch (type) {
+			case MODEL : return new ModelGenerator();
 			default : return null;
 		}
 	}

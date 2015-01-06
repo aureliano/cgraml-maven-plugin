@@ -3,7 +3,11 @@ package com.github.aureliano.srvraml.gen;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import org.apache.maven.plugin.logging.Log;
+import org.raml.model.Raml;
+
 import com.github.aureliano.srvraml.helper.RamlHelper;
+import com.github.aureliano.srvraml.helper.ValidationHelper;
 
 public class Generator {
 
@@ -19,8 +23,18 @@ public class Generator {
 			throw new RuntimeException("There is no RAML file in " + this.configuration.getSourceDirectory().getPath());
 		}
 		
+		Log logger = this.configuration.getLogger();
 		for (File ramlFile : ramlFiles) {
-			this.configuration.getLogger().info("Generate client code over " + ramlFile.getPath());
+			logger.info("------------------------------------------------------------------------");
+			logger.info("Validating and Parsing RAML file " + ramlFile.getPath());
+			
+			ValidationHelper.validateRamlFile(ramlFile);
+			Raml raml = RamlHelper.parseModel(ramlFile);
+			
+			for (GeneratorType type : GeneratorType.values()) {
+				logger.info("Generate code for " + type.name() + " layer");
+				this.buildCodeGenerator(type, raml).execute();
+			}
 		}
 	}
 	
@@ -42,10 +56,12 @@ public class Generator {
 		});
 	}
 	
-	/*private ICodeGenerator buildCodeGenerator() {
-		return new CodeGenerator()
-		.withRaml(RamlHelper.parseModel(this.sourceDirectory))
-		.withLogger(super.getLog())
-		.withBasePackageName(this.basePackageName);
-}*/
+	private ICodeGenerator buildCodeGenerator(GeneratorType type, Raml raml) {
+		return GeneratorFactory
+			.createGenerator(type)
+				.withRaml(raml)
+				.withLogger(this.configuration.getLogger())
+				.withBasePackageName(this.configuration.getBasePackageName())
+				.withGeneratedSourcesTarget(this.configuration.getGeneratedSourcesTarget());
+	}
 }

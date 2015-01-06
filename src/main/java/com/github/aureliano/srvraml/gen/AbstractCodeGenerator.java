@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.raml.model.Raml;
 
@@ -14,7 +13,7 @@ public abstract class AbstractCodeGenerator implements ICodeGenerator {
 
 	protected Raml raml;
 	protected Log logger;
-	protected String sourceDirectory;
+	protected File generatedSourcesTarget;
 	protected String basePackageName;
 	
 	public AbstractCodeGenerator() {
@@ -23,9 +22,8 @@ public abstract class AbstractCodeGenerator implements ICodeGenerator {
 	
 	protected void saveFile(String content) {
 		try {
-			File genDir = new File(this.getSourceDirectory());
-			if (!genDir.exists()) {
-				FileUtils.forceMkdir(genDir);
+			if (!this.getGeneratedSourcesTarget().exists()) {
+				FileUtils.forceMkdir(this.getGeneratedSourcesTarget());
 			}
 			
 			IOUtils.write(content, new FileOutputStream(this.outputFile()));
@@ -36,7 +34,7 @@ public abstract class AbstractCodeGenerator implements ICodeGenerator {
 	}
 	
 	public File outputFile() {
-		return new File(this.getSourceDirectory() + File.separator + this.outputPath());
+		return new File(this.getGeneratedSourcesTarget() + File.separator + this.outputPath());
 	}
 	
 	@Override
@@ -73,17 +71,17 @@ public abstract class AbstractCodeGenerator implements ICodeGenerator {
 	}
 
 	@Override
-	public ICodeGenerator withSourceDirectory(String sourceDirectory) {
-		this.sourceDirectory = sourceDirectory;
+	public ICodeGenerator withGeneratedSourcesTarget(File generatedSourcesTarget) {
+		this.generatedSourcesTarget = generatedSourcesTarget;
 		return this;
 	}
 
 	@Override
-	public String getSourceDirectory() {
-		if (StringUtils.isEmpty(this.sourceDirectory)) {
-			this.sourceDirectory = ICodeGenerator.DEFAULT_GEN_DIRECTORY;
+	public File getGeneratedSourcesTarget() {
+		if (this.generatedSourcesTarget == null) {
+			this.generatedSourcesTarget = ICodeGenerator.DEFAULT_GEN_DIRECTORY;
 		}
 		
-		return this.sourceDirectory;
+		return this.generatedSourcesTarget;
 	}
 }
