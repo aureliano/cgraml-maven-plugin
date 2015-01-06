@@ -10,14 +10,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.raml.model.Raml;
 
-public abstract class AbstractGenerator implements IGenerator {
+public abstract class AbstractCodeGenerator implements ICodeGenerator {
 
 	protected Raml raml;
 	protected Log logger;
 	protected String sourceDirectory;
 	protected String basePackageName;
 	
-	public AbstractGenerator() {
+	public AbstractCodeGenerator() {
 		super();
 	}
 	
@@ -40,19 +40,19 @@ public abstract class AbstractGenerator implements IGenerator {
 	}
 	
 	@Override
-	public IGenerator withRaml(Raml raml) {
+	public ICodeGenerator withRaml(Raml raml) {
 		this.raml = raml;
 		return this;
 	}
 
 	@Override
-	public IGenerator withLogger(Log logger) {
+	public ICodeGenerator withLogger(Log logger) {
 		this.logger = logger;
 		return this;
 	}
 	
 	@Override
-	public IGenerator withBasePackageName(String basePackageName) {
+	public ICodeGenerator withBasePackageName(String basePackageName) {
 		this.basePackageName = basePackageName;
 		return this;
 	}
@@ -73,7 +73,7 @@ public abstract class AbstractGenerator implements IGenerator {
 	}
 
 	@Override
-	public IGenerator withSourceDirectory(String sourceDirectory) {
+	public ICodeGenerator withSourceDirectory(String sourceDirectory) {
 		this.sourceDirectory = sourceDirectory;
 		return this;
 	}
@@ -81,7 +81,7 @@ public abstract class AbstractGenerator implements IGenerator {
 	@Override
 	public String getSourceDirectory() {
 		if (StringUtils.isEmpty(this.sourceDirectory)) {
-			this.sourceDirectory = IGenerator.DEFAULT_GEN_DIRECTORY;
+			this.sourceDirectory = ICodeGenerator.DEFAULT_GEN_DIRECTORY;
 		}
 		
 		return this.sourceDirectory;

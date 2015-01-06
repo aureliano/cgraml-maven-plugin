@@ -12,7 +12,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.github.aureliano.srvraml.gen.CodeGenerator;
-import com.github.aureliano.srvraml.gen.IGenerator;
+import com.github.aureliano.srvraml.gen.ICodeGenerator;
 import com.github.aureliano.srvraml.helper.RamlHelper;
 import com.github.aureliano.srvraml.helper.ValidationHelper;
 
@@ -59,7 +59,7 @@ public class AppMojo extends AbstractMojo {
 		}
 	}
 	
-	private IGenerator buildCodeGenerator() {
+	private ICodeGenerator buildCodeGenerator() {
 		return new CodeGenerator()
 			.withRaml(RamlHelper.parseModel(this.sourceDirectory))
 			.withLogger(super.getLog())
@@ -69,7 +69,7 @@ public class AppMojo extends AbstractMojo {
 	private void printExecutionInformation() {
 		super.getLog().info("RAML resource location: " + this.sourceDirectory.getPath());
 		super.getLog().info("Base package name: " + this.basePackageName);
-		super.getLog().info("Sources directory target: " + this.sourcesTargetDirectory() + " (" + IGenerator.DEFAULT_GEN_DIRECTORY + ") if null");
+		super.getLog().info("Sources directory target: " + this.sourcesTargetDirectory() + " (" + ICodeGenerator.DEFAULT_GEN_DIRECTORY + ") if null");
 		super.getLog().info("Remove old output? " + this.removeOldOutput);
 	}
 	

@@ -2,7 +2,7 @@ package com.github.aureliano.srvraml.gen;
 
 public final class GeneratorFactory {
 
-	public static IGenerator createGenerator(GeneratorType type) {
+	public static ICodeGenerator createGenerator(GeneratorType type) {
 		if (type == null) {
 			return null;
 		}

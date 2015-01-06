@@ -2,7 +2,7 @@ package com.github.aureliano.srvraml.gen;
 
 import org.apache.maven.plugin.logging.SystemStreamLog;
 
-public class CodeGenerator extends AbstractGenerator {
+public class CodeGenerator extends AbstractCodeGenerator {
 
 	public CodeGenerator() {
 		super();
@@ -16,7 +16,7 @@ public class CodeGenerator extends AbstractGenerator {
 		this.getCodeGenerator(GeneratorType.WEB_XML).execute();
 	}
 	
-	private IGenerator getCodeGenerator(GeneratorType generatorType) {
+	private ICodeGenerator getCodeGenerator(GeneratorType generatorType) {
 		return GeneratorFactory
 				.createGenerator(generatorType)
 				.withLogger(this.logger)
