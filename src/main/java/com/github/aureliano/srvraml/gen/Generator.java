@@ -32,7 +32,7 @@ public class Generator {
 			Raml raml = RamlHelper.parseModel(ramlFile);
 			
 			for (GeneratorType type : GeneratorType.values()) {
-				logger.info("Generate code for " + type.name() + " layer");
+				logger.info("Generate code for " + type.name() + " layer.");
 				this.buildCodeGenerator(type, raml).execute();
 			}
 		}
