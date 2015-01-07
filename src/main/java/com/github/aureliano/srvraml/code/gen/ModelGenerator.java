@@ -28,15 +28,11 @@ public class ModelGenerator extends AbstractCodeGenerator {
 			ClassMeta clazz = builder.getClazz();
 			
 			super.logger.info("Generated class: " + clazz.getPackageName() + "." + clazz.getClassName());
+			super.logger.debug(clazz.toString());
 		}
 	}
 	
 	private ModelBuilder createModelBuilder(String entity, String json) {
-		return CodeBuilder.create(GeneratorType.MODEL).parse(super.basePackageName, entity, json);
-	}
-
-	@Override
-	public String outputPath() {
-		return null;
+		return CodeBuilder.create(GeneratorType.MODEL).parse(super.basePackageName + ".gen", entity, json);
 	}
 }

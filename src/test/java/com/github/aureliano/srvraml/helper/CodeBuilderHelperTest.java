@@ -44,7 +44,7 @@ public class CodeBuilderHelperTest {
 	}
 	
 	@Test
-	public void testCreateWritterMethod() {
+	public void testCreateSetterMethod() {
 		assertNull(CodeBuilderHelper.createSetterMethod(null));
 		
 		FieldMeta f = new FieldMeta();
@@ -55,8 +55,10 @@ public class CodeBuilderHelperTest {
 		MethodMeta m = CodeBuilderHelper.createSetterMethod(f);
 		assertEquals("setSpecial", m.getName());
 		assertNull(m.getReturnType());
+		assertEquals(Visibility.PUBLIC, m.getVisibility());
 		assertFalse(m.getParameters().isEmpty());
 		assertEquals(f.getName(), m.getParameters().get(0).getName());
+		assertEquals("this.special = special;", m.getBody());
 	}
 	
 	@Test
@@ -71,6 +73,8 @@ public class CodeBuilderHelperTest {
 		MethodMeta m = CodeBuilderHelper.createGetterMethod(f);
 		assertEquals("getSpecial", m.getName());
 		assertEquals(Boolean.class, m.getReturnType());
+		assertEquals(Visibility.PUBLIC, m.getVisibility());
 		assertTrue(m.getParameters().isEmpty());
+		assertEquals("return this.special;", m.getBody());
 	}
 }

@@ -59,6 +59,7 @@ public class FieldMeta {
 	
 	@Override
 	public String toString() {
-		return String.format("[ name => \"%s\", type => %s, visibility => %s ]", this.name, this.type, this.visibility);
+		String t = (this.type == null) ? "" : this.type.getName();
+		return String.format("[ name => \"%s\", type => %s, visibility => %s ]", this.name, t, this.visibility);
 	}
 }

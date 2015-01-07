@@ -71,6 +71,10 @@ public class ClassMeta {
 		return this;
 	}
 	
+	public String getCanonicalClassName() {
+		return this.packageName + "." + this.className;
+	}
+	
 	@Override
 	public String toString() {
 		return new StringBuilder("[ ")

@@ -1,5 +1,6 @@
 package com.github.aureliano.srvraml.code.builder;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,7 +8,11 @@ import org.apache.commons.lang.StringUtils;
 
 import com.github.aureliano.srvraml.code.meta.ClassMeta;
 import com.github.aureliano.srvraml.code.meta.FieldMeta;
+import com.github.aureliano.srvraml.code.meta.MethodMeta;
 import com.github.aureliano.srvraml.helper.CodeBuilderHelper;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JMethod;
 
 public class ModelBuilder implements IBuilder {
 
@@ -30,7 +35,7 @@ public class ModelBuilder implements IBuilder {
 			.toString();
 		
 		this.clazz = new ClassMeta()
-			.withPackageName(pkg)
+			.withPackageName(pkg + ".model")
 			.withJavaDoc(javaDoc)
 			.withClassName(StringUtils.capitalize(entity));
 		
@@ -51,9 +56,46 @@ public class ModelBuilder implements IBuilder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ModelBuilder build() {
-		throw new UnsupportedOperationException("ModelBuilder not implemented yet");
+		this.buildJavaClass();		
+		return this;
 	}
 	
+	private void buildJavaClass() {
+		try {
+			JCodeModel codeModel = new JCodeModel();
+			JDefinedClass definedClass = codeModel._class(this.clazz.getCanonicalClassName());
+			definedClass.javadoc().append(this.clazz.getJavaDoc());
+			
+			this.appendClassAttributes(definedClass);
+			this.appendClassMethods(codeModel, definedClass);
+			
+			codeModel.build(new File("src/main/java"));
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	private void appendClassMethods(JCodeModel codeModel, JDefinedClass definedClass) {
+		for (MethodMeta method : this.clazz.getMethods()) {
+			if (method.getReturnType() == null) {
+				JMethod jm = definedClass.method(method.getVisibility().getMod(), codeModel.VOID, method.getName());
+				FieldMeta param = method.getParameters().get(0);
+				
+				jm.param(param.getType(), param.getName());
+				jm.body().directStatement(method.getBody());
+			} else {
+				JMethod jm = definedClass.method(method.getVisibility().getMod(), method.getReturnType(), method.getName());
+				jm.body().directStatement(method.getBody());
+			}
+		}
+	}
+
+	private void appendClassAttributes(JDefinedClass definedClass) {
+		for (FieldMeta field : this.clazz.getFields()) {
+			definedClass.field(field.getVisibility().getMod(), field.getType(), field.getName());
+		}
+	}
+
 	private Map<?, ?> parseJsonString(String json) {
 		try {
 			return OBJECT_MAPPER.readValue(json, HashMap.class);

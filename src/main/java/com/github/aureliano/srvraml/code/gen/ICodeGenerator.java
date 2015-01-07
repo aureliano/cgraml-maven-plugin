@@ -25,7 +25,5 @@ public interface ICodeGenerator {
 	
 	public abstract File getGeneratedSourcesTarget();
 	
-	public abstract String outputPath();
-	
 	public static final File DEFAULT_GEN_DIRECTORY = new File("srvraml-maven-plugin");
 }

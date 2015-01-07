@@ -7,9 +7,11 @@ public class MethodMeta {
 
 	private String name;
 	private Class<?> returnType;
+	private Visibility visibility;
 	private boolean staticMethod;
 	private boolean finalMethod;
 	private List<FieldMeta> parameters;
+	private String body;
 	
 	public MethodMeta() {
 		this.parameters = new ArrayList<FieldMeta>();
@@ -29,6 +31,14 @@ public class MethodMeta {
 
 	public void setReturnType(Class<?> type) {
 		this.returnType = type;
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
 	}
 
 	public boolean isStaticMethod() {
@@ -55,11 +65,20 @@ public class MethodMeta {
 		this.parameters = parameters;
 	}
 	
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
+	}
+
 	@Override
 	public String toString() {
+		String t = (this.returnType == null) ? "" : this.returnType.getName();
 		return String.format(
-			"[ name => \"%s\", type => %s, staticMethod => %s, finalMethod => %s, parameters => %s ]",
-			this.name, this.returnType, this.staticMethod, this.finalMethod, this.parameters
+			"[ name => \"%s\", type => %s, visibility => %s, staticMethod => %s, finalMethod => %s, parameters => %s ]",
+			this.name, t, this.visibility, this.staticMethod, this.finalMethod, this.parameters
 		);
 	}
 }

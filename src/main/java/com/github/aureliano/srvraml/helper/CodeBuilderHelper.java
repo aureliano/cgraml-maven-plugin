@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.github.aureliano.srvraml.code.meta.FieldMeta;
 import com.github.aureliano.srvraml.code.meta.MethodMeta;
+import com.github.aureliano.srvraml.code.meta.Visibility;
 
 public final class CodeBuilderHelper {
 
@@ -42,10 +43,12 @@ public final class CodeBuilderHelper {
 		MethodMeta m = new MethodMeta();
 		
 		m.setName("set" + StringUtils.capitalize(attribute.getName()));
+		m.setVisibility(Visibility.PUBLIC);
 		m.setStaticMethod(false);
 		m.setFinalMethod(false);
 		m.setReturnType(null);
 		m.setParameters(Arrays.asList(attribute));
+		m.setBody(String.format("this.%s = %s;", attribute.getName(), attribute.getName()));
 		
 		return m;
 	}
@@ -58,9 +61,11 @@ public final class CodeBuilderHelper {
 		MethodMeta m = new MethodMeta();
 		
 		m.setName("get" + StringUtils.capitalize(attribute.getName()));
+		m.setVisibility(Visibility.PUBLIC);
 		m.setStaticMethod(false);
 		m.setFinalMethod(false);
 		m.setReturnType(attribute.getType());
+		m.setBody(String.format("return this.%s;", attribute.getName()));
 		
 		return m;
 	}
