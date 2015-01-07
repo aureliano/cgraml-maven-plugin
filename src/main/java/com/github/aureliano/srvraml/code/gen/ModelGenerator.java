@@ -1,14 +1,13 @@
 package com.github.aureliano.srvraml.code.gen;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.aureliano.srvraml.code.builder.CodeBuilder;
+import com.github.aureliano.srvraml.code.builder.ModelBuilder;
+import com.github.aureliano.srvraml.code.meta.ClassMeta;
 
 public class ModelGenerator extends AbstractCodeGenerator {
-
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	
 	public ModelGenerator() {
 		super();
@@ -22,21 +21,18 @@ public class ModelGenerator extends AbstractCodeGenerator {
 		}
 		
 		for (Map<String, String> schema : schemas) {
+			String entity = schema.keySet().iterator().next();
 			String json = schema.values().iterator().next();
-			Map<?,?> map = this.parseJsonString(json);
 			
-			System.out.println(map.get("properties"));
+			ModelBuilder builder = this.createModelBuilder(entity, json).build();
+			ClassMeta clazz = builder.getClazz();
+			
+			super.logger.info("Generated class: " + clazz.getPackageName() + "." + clazz.getClassName());
 		}
-		
-		throw new UnsupportedOperationException("Model generator not implemented yet");
 	}
 	
-	private Map<?, ?> parseJsonString(String json) {
-		try {
-			return OBJECT_MAPPER.readValue(json, HashMap.class);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+	private ModelBuilder createModelBuilder(String entity, String json) {
+		return CodeBuilder.create(GeneratorType.MODEL).parse(super.basePackageName, entity, json);
 	}
 
 	@Override
