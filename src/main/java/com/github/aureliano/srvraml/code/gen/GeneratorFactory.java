@@ -1,4 +1,4 @@
-package com.github.aureliano.srvraml.gen;
+package com.github.aureliano.srvraml.code.gen;
 
 public final class GeneratorFactory {
 

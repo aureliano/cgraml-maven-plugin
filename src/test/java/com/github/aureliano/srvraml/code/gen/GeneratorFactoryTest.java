@@ -1,7 +1,11 @@
-package com.github.aureliano.srvraml.gen;
+package com.github.aureliano.srvraml.code.gen;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.github.aureliano.srvraml.code.gen.GeneratorFactory;
+import com.github.aureliano.srvraml.code.gen.GeneratorType;
+import com.github.aureliano.srvraml.code.gen.ModelGenerator;
 
 public class GeneratorFactoryTest {
 

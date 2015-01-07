@@ -1,4 +1,4 @@
-package com.github.aureliano.srvraml.gen;
+package com.github.aureliano.srvraml.code.gen;
 
 import java.util.HashMap;
 import java.util.List;

@@ -11,9 +11,9 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import com.github.aureliano.srvraml.gen.Configuration;
-import com.github.aureliano.srvraml.gen.Generator;
-import com.github.aureliano.srvraml.gen.ICodeGenerator;
+import com.github.aureliano.srvraml.code.gen.Configuration;
+import com.github.aureliano.srvraml.code.gen.Generator;
+import com.github.aureliano.srvraml.code.gen.ICodeGenerator;
 import com.github.aureliano.srvraml.helper.ValidationHelper;
 
 /**
