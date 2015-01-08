@@ -7,29 +7,35 @@ import com.github.aureliano.srvraml.helper.CodeBuilderHelper;
 public class FieldMeta {
 
 	private String name;
-	private Class<?> type;
+	private String type;
+	private String genericType;
 	private Visibility visibility;
 	
 	public FieldMeta() {
 		super();
 	}
 	
-	public static FieldMeta parse(Map<String, String> data) {
+	public static FieldMeta parse(Map<String, ?> data) {
 		if (data == null) {
 			return null;
 		}
 		
 		FieldMeta f = new FieldMeta();
 		
-		f.setName(data.get("name"));
-		f.setType(CodeBuilderHelper.getJavaType(data.get("type")));
+		f.setName(data.get("name").toString());
+		f.setType(CodeBuilderHelper.getJavaType(data.get("type").toString()));
+				
+		if (data.get("items") != null) {
+			Map<String, String> items = (Map<String, String>) data.get("items");
+			f.setGenericType(CodeBuilderHelper.getJavaType(items.get("$ref")));
+		}
 		
 		if (data.get("visibility") == null) {
 			f.setVisibility(Visibility.PRIVATE);
 		} else {
-			f.setVisibility(Visibility.valueOf(data.get("visibility").toUpperCase()));
+			f.setVisibility(Visibility.valueOf(data.get("visibility").toString().toUpperCase()));
 		}
-				
+		
 		return f;
 	}
 
@@ -41,12 +47,20 @@ public class FieldMeta {
 		this.name = name;
 	}
 
-	public Class<?> getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(Class<?> type) {
+	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getGenericType() {
+		return genericType;
+	}
+
+	public void setGenericType(String genericType) {
+		this.genericType = genericType;
 	}
 
 	public Visibility getVisibility() {
@@ -59,7 +73,9 @@ public class FieldMeta {
 	
 	@Override
 	public String toString() {
-		String t = (this.type == null) ? "" : this.type.getName();
-		return String.format("[ name => \"%s\", type => %s, visibility => %s ]", this.name, t, this.visibility);
+		return String.format(
+			"[ name => \"%s\", type => %s, genericType => %s, visibility => %s ]",
+			this.name, this.type, this.genericType, this.visibility
+		);
 	}
 }

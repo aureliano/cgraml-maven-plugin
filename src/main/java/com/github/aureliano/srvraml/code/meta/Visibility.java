@@ -1,10 +1,12 @@
 package com.github.aureliano.srvraml.code.meta;
 
+import com.sun.codemodel.JMod;
+
 public enum Visibility {
 
-	PUBLIC(1),
-	PROTECTED(2),
-	PRIVATE(4);
+	PUBLIC(JMod.PUBLIC),
+	PROTECTED(JMod.PROTECTED),
+	PRIVATE(JMod.PRIVATE);
 	
 	private Integer mod;
 

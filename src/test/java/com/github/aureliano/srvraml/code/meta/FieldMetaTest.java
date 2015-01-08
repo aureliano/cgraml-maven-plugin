@@ -1,9 +1,10 @@
 package com.github.aureliano.srvraml.code.meta;
 
-import java.util.HashMap;
-
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -13,13 +14,18 @@ public class FieldMetaTest {
 	public void testParse() {
 		assertNull(FieldMeta.parse(null));
 		
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("name", "test");
-		map.put("type", "string");
+		map.put("type", "array");
+		
+		HashMap<String, String> items = new HashMap<String, String>();
+		items.put("$ref", "Malabibala");
+		map.put("items", items);
 				
 		FieldMeta f = FieldMeta.parse(map);
 		assertEquals("test", f.getName());
-		assertEquals(String.class, f.getType());
+		assertEquals(List.class.getName(), f.getType());
+		assertEquals("Malabibala", f.getGenericType());
 		assertEquals(Visibility.PRIVATE, f.getVisibility());
 		
 		map.put("visibility", "protected");

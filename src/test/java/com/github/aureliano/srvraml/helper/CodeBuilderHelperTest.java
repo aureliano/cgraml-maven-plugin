@@ -19,28 +19,29 @@ public class CodeBuilderHelperTest {
 	public void testGetJavaType() {
 		assertNull(CodeBuilderHelper.getJavaType(null));
 		assertNull(CodeBuilderHelper.getJavaType(""));
-		assertNull(CodeBuilderHelper.getJavaType("test"));
 		
-		assertEquals(String.class, CodeBuilderHelper.getJavaType("string"));
-		assertEquals(String.class, CodeBuilderHelper.getJavaType("String"));
+		assertEquals("Test", CodeBuilderHelper.getJavaType("test"));
 		
-		assertEquals(Double.class, CodeBuilderHelper.getJavaType("number"));
-		assertEquals(Double.class, CodeBuilderHelper.getJavaType("Number"));
+		assertEquals(String.class.getName(), CodeBuilderHelper.getJavaType("string"));
+		assertEquals(String.class.getName(), CodeBuilderHelper.getJavaType("String"));
 		
-		assertEquals(Integer.class, CodeBuilderHelper.getJavaType("integer"));
-		assertEquals(Integer.class, CodeBuilderHelper.getJavaType("Integer"));
+		assertEquals(Double.class.getName(), CodeBuilderHelper.getJavaType("number"));
+		assertEquals(Double.class.getName(), CodeBuilderHelper.getJavaType("Number"));
 		
-		assertEquals(Boolean.class, CodeBuilderHelper.getJavaType("boolean"));
-		assertEquals(Boolean.class, CodeBuilderHelper.getJavaType("Boolean"));
+		assertEquals(Integer.class.getName(), CodeBuilderHelper.getJavaType("integer"));
+		assertEquals(Integer.class.getName(), CodeBuilderHelper.getJavaType("Integer"));
 		
-		assertEquals(Object.class, CodeBuilderHelper.getJavaType("value"));
-		assertEquals(Object.class, CodeBuilderHelper.getJavaType("Value"));
+		assertEquals(Boolean.class.getName(), CodeBuilderHelper.getJavaType("boolean"));
+		assertEquals(Boolean.class.getName(), CodeBuilderHelper.getJavaType("Boolean"));
 		
-		assertEquals(Object[].class, CodeBuilderHelper.getJavaType("array"));
-		assertEquals(Object[].class, CodeBuilderHelper.getJavaType("Array"));
+		assertEquals(Object.class.getName(), CodeBuilderHelper.getJavaType("value"));
+		assertEquals(Object.class.getName(), CodeBuilderHelper.getJavaType("Value"));
 		
-		assertEquals(List.class, CodeBuilderHelper.getJavaType("object"));
-		assertEquals(List.class, CodeBuilderHelper.getJavaType("Object"));
+		assertEquals(List.class.getName(), CodeBuilderHelper.getJavaType("array"));
+		assertEquals(List.class.getName(), CodeBuilderHelper.getJavaType("Array"));
+		
+		assertEquals(Object.class.getName(), CodeBuilderHelper.getJavaType("object"));
+		assertEquals(Object.class.getName(), CodeBuilderHelper.getJavaType("Object"));
 	}
 	
 	@Test
@@ -49,7 +50,7 @@ public class CodeBuilderHelperTest {
 		
 		FieldMeta f = new FieldMeta();
 		f.setName("special");
-		f.setType(Boolean.class);
+		f.setType(Boolean.class.getName());
 		f.setVisibility(Visibility.PRIVATE);
 		
 		MethodMeta m = CodeBuilderHelper.createSetterMethod(f);
@@ -67,12 +68,14 @@ public class CodeBuilderHelperTest {
 		
 		FieldMeta f = new FieldMeta();
 		f.setName("special");
-		f.setType(Boolean.class);
+		f.setType(List.class.getName());
+		f.setGenericType(Boolean.class.getName());
 		f.setVisibility(Visibility.PRIVATE);
 		
 		MethodMeta m = CodeBuilderHelper.createGetterMethod(f);
 		assertEquals("getSpecial", m.getName());
-		assertEquals(Boolean.class, m.getReturnType());
+		assertEquals(List.class.getName(), m.getReturnType());
+		assertEquals(Boolean.class.getName(), m.getGenericReturnType());
 		assertEquals(Visibility.PUBLIC, m.getVisibility());
 		assertTrue(m.getParameters().isEmpty());
 		assertEquals("return this.special;", m.getBody());

@@ -12,7 +12,6 @@ import com.github.aureliano.srvraml.code.meta.MethodMeta;
 import com.github.aureliano.srvraml.helper.CodeBuilderHelper;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
-import com.sun.codemodel.JMethod;
 
 public class ModelBuilder implements IBuilder {
 
@@ -66,7 +65,7 @@ public class ModelBuilder implements IBuilder {
 			JDefinedClass definedClass = codeModel._class(this.clazz.getCanonicalClassName());
 			definedClass.javadoc().append(this.clazz.getJavaDoc());
 			
-			this.appendClassAttributes(definedClass);
+			this.appendClassAttributes(codeModel, definedClass);
 			this.appendClassMethods(codeModel, definedClass);
 			
 			codeModel.build(new File("src/main/java"));
@@ -77,22 +76,13 @@ public class ModelBuilder implements IBuilder {
 	
 	private void appendClassMethods(JCodeModel codeModel, JDefinedClass definedClass) {
 		for (MethodMeta method : this.clazz.getMethods()) {
-			if (method.getReturnType() == null) {
-				JMethod jm = definedClass.method(method.getVisibility().getMod(), codeModel.VOID, method.getName());
-				FieldMeta param = method.getParameters().get(0);
-				
-				jm.param(param.getType(), param.getName());
-				jm.body().directStatement(method.getBody());
-			} else {
-				JMethod jm = definedClass.method(method.getVisibility().getMod(), method.getReturnType(), method.getName());
-				jm.body().directStatement(method.getBody());
-			}
+			CodeBuilderHelper.addMethodToClass(codeModel, definedClass, method);
 		}
 	}
 
-	private void appendClassAttributes(JDefinedClass definedClass) {
+	private void appendClassAttributes(JCodeModel codeModel, JDefinedClass definedClass) {
 		for (FieldMeta field : this.clazz.getFields()) {
-			definedClass.field(field.getVisibility().getMod(), field.getType(), field.getName());
+			CodeBuilderHelper.addAttributeToClass(codeModel, definedClass, field);
 		}
 	}
 

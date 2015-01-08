@@ -6,7 +6,8 @@ import java.util.List;
 public class MethodMeta {
 
 	private String name;
-	private Class<?> returnType;
+	private String returnType;
+	private String genericReturnType;
 	private Visibility visibility;
 	private boolean staticMethod;
 	private boolean finalMethod;
@@ -25,12 +26,20 @@ public class MethodMeta {
 		this.name = name;
 	}
 
-	public Class<?> getReturnType() {
+	public String getReturnType() {
 		return returnType;
 	}
 
-	public void setReturnType(Class<?> type) {
+	public void setReturnType(String type) {
 		this.returnType = type;
+	}
+
+	public String getGenericReturnType() {
+		return genericReturnType;
+	}
+
+	public void setGenericReturnType(String genericreturnType) {
+		this.genericReturnType = genericreturnType;
 	}
 
 	public Visibility getVisibility() {
@@ -75,10 +84,9 @@ public class MethodMeta {
 
 	@Override
 	public String toString() {
-		String t = (this.returnType == null) ? "" : this.returnType.getName();
 		return String.format(
-			"[ name => \"%s\", type => %s, visibility => %s, staticMethod => %s, finalMethod => %s, parameters => %s ]",
-			this.name, t, this.visibility, this.staticMethod, this.finalMethod, this.parameters
+			"[ name => \"%s\", returnType => %s, genericReturnType => %s, visibility => %s, staticMethod => %s, finalMethod => %s, parameters => %s ]",
+			this.name, this.returnType, this.genericReturnType, this.visibility, this.staticMethod, this.finalMethod, this.parameters
 		);
 	}
 }
