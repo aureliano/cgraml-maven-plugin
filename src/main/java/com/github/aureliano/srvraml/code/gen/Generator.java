@@ -2,6 +2,7 @@ package com.github.aureliano.srvraml.code.gen;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
 import org.raml.model.Raml;
@@ -12,6 +13,7 @@ import com.github.aureliano.srvraml.helper.ValidationHelper;
 public class Generator {
 
 	private Configuration configuration;
+	public static Map<?, ?> currentRamlMap;
 	
 	public Generator() {
 		super();
@@ -30,6 +32,7 @@ public class Generator {
 			
 			ValidationHelper.validateRamlFile(ramlFile);
 			Raml raml = RamlHelper.parseModel(ramlFile);
+			currentRamlMap = RamlHelper.parseYaml(ramlFile);
 			
 			for (GeneratorType type : GeneratorType.values()) {
 				logger.info("Generate code for " + type.name() + " layer.");

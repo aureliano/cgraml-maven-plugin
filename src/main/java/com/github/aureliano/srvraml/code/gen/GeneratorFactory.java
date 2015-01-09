@@ -9,6 +9,7 @@ public final class GeneratorFactory {
 		
 		switch (type) {
 			case MODEL : return new ModelGenerator();
+			case SERVICE : return new ServiceGenerator();
 			default : return null;
 		}
 	}

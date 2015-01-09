@@ -16,6 +16,7 @@ public final class CodeBuilder {
 		
 		switch (type) {
 			case MODEL : return (T) new ModelBuilder();
+			case SERVICE : return (T) new ServiceBuilder();
 			default : return null;
 		}
 	}

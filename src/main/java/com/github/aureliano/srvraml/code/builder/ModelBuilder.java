@@ -23,8 +23,8 @@ public class ModelBuilder implements IBuilder {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public ModelBuilder parse(String pkg, String entity, String json) {
-		Map<?, ?> map = this.parseJsonString(json);
+	public ModelBuilder parse(String pkg, String entity, Object resource) {
+		Map<?, ?> map = this.parseJsonString(resource.toString());
 		Map<String, Map<String, String>> properties = (Map<String, Map<String, String>>) map.get("properties");
 		
 		String javaDoc = new StringBuilder()
