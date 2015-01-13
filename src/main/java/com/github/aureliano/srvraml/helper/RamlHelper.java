@@ -72,10 +72,10 @@ public final class RamlHelper {
 			Map<String, String> schemaTypes = (Map<String, String>) type.get(key);
 			
 			if (StringUtils.isEmpty(schemaTypes.get("collectionSchema"))) {
-				service.setType(schemaTypes.get("schema"));
+				service.setType(CodeBuilderHelper.getJavaType(schemaTypes.get("schema")));
 			} else {
-				service.setGenericType(schemaTypes.get("schema"));
-				service.setType(schemaTypes.get("collectionSchema"));
+				service.setGenericType(CodeBuilderHelper.getJavaType(schemaTypes.get("schema")));
+				service.setType(CodeBuilderHelper.getJavaType(schemaTypes.get("collectionSchema")));
 			}
 		}
 		
@@ -88,7 +88,7 @@ public final class RamlHelper {
 			for (String paramName : parameters.keySet()) {
 				FieldMeta param = new FieldMeta();
 				param.setName(paramName);
-				param.setType(parameters.get(paramName).getType().name());
+				param.setType(CodeBuilderHelper.getJavaType(parameters.get(paramName).getType().name()));
 				
 				am.addParameter(param);
 			}

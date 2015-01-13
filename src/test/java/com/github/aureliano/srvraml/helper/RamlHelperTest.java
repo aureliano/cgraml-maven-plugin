@@ -51,15 +51,15 @@ public class RamlHelperTest {
 		assertNotNull(service);
 		
 		assertEquals("/products", service.getUri());
-		assertEquals("products", service.getType());
-		assertEquals("product", service.getGenericType());
+		assertEquals("Products", service.getType());
+		assertEquals("Product", service.getGenericType());
 		
 		assertEquals(2, service.getActions().size());
 		
 		List<FieldMeta> params = service.getActions().get(0).getParameters();
 		assertEquals(3, params.size());
 		assertEquals("region", params.get(0).getName());
-		assertEquals("string", params.get(0).getType().toLowerCase());
+		assertEquals("java.lang.String", params.get(0).getType());
 	}
 	
 	@Test

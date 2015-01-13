@@ -1,5 +1,6 @@
 package com.github.aureliano.srvraml.code.builder;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -14,6 +15,8 @@ import com.github.aureliano.srvraml.code.meta.MethodMeta;
 import com.github.aureliano.srvraml.code.meta.ServiceMeta;
 import com.github.aureliano.srvraml.code.meta.Visibility;
 import com.github.aureliano.srvraml.helper.CodeBuilderHelper;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
 
 public class ServiceBuilder implements IBuilder {
 
@@ -52,8 +55,10 @@ public class ServiceBuilder implements IBuilder {
 		for (ActionMeta action : service.getActions()) {
 			MethodMeta method = new MethodMeta();
 			method.setName(action.getMethod().name().toLowerCase());
-			method.setReturnType("Object");
+			method.setReturnType(service.getType());
+			method.setGenericReturnType(service.getGenericType());
 			method.setVisibility(Visibility.PUBLIC);
+			method.setBody("throw new UnsupportedOperationException(\"Method not implemented yet\");");
 			
 			this.clazz.addMethod(method);
 		}
@@ -65,9 +70,37 @@ public class ServiceBuilder implements IBuilder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ServiceBuilder build() {
+		this.buildJavaClass();
 		return this;
 	}
 	
+	private void buildJavaClass() {
+		try {
+			JCodeModel codeModel = new JCodeModel();
+			JDefinedClass definedClass = codeModel._class(this.clazz.getCanonicalClassName());
+			definedClass.javadoc().append(this.clazz.getJavaDoc());
+			
+			this.appendClassAttributes(codeModel, definedClass);
+			this.appendClassMethods(codeModel, definedClass);
+			
+			codeModel.build(new File("src/main/java"));
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	private void appendClassAttributes(JCodeModel codeModel, JDefinedClass definedClass) {
+		for (FieldMeta field : this.clazz.getFields()) {
+			CodeBuilderHelper.addAttributeToClass(codeModel, definedClass, field);
+		}
+	}
+
+	private void appendClassMethods(JCodeModel codeModel, JDefinedClass definedClass) {
+		for (MethodMeta method : this.clazz.getMethods()) {
+			CodeBuilderHelper.addMethodToClass(codeModel, definedClass, method);
+		}
+	}
+
 	private void addUrlAttributeToClass() {
 		FieldMeta field = new FieldMeta();
 		field.setName("url");
@@ -108,8 +141,11 @@ public class ServiceBuilder implements IBuilder {
 			
 			String name = this.sanitizedTypeName(s.getUri());
 			method.setReturnType(name);
+			
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 			method.setName(name);
+			method.setVisibility(Visibility.PUBLIC);
+			method.setBody("throw new UnsupportedOperationException(\"Method not implemented yet\");");
 			
 			this.clazz.addMethod(method);
 		}

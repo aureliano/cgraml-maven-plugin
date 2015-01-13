@@ -63,7 +63,7 @@ public class ModelBuilder implements IBuilder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ModelBuilder build() {
-		this.buildJavaClass();		
+		this.buildJavaClass();
 		return this;
 	}
 	
