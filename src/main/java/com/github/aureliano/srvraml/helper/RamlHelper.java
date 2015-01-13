@@ -3,6 +3,9 @@ package com.github.aureliano.srvraml.helper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +49,15 @@ public final class RamlHelper {
 		} catch (FileNotFoundException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+	
+	public static List<ServiceMeta> resourcesToServices(Collection<Resource> resources) {
+		List<ServiceMeta> services = new ArrayList<ServiceMeta>();
+		for (Resource resource : resources) {
+			services.add(resourceToService(resource));
+		}
+		
+		return services;
 	}
 
 	public static ServiceMeta resourceToService(Resource resource) {

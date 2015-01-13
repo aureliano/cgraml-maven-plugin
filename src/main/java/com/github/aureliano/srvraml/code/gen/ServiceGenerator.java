@@ -1,12 +1,16 @@
 package com.github.aureliano.srvraml.code.gen;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.raml.model.Resource;
 
 import com.github.aureliano.srvraml.code.builder.CodeBuilder;
 import com.github.aureliano.srvraml.code.builder.ServiceBuilder;
 import com.github.aureliano.srvraml.code.meta.ClassMeta;
+import com.github.aureliano.srvraml.code.meta.ServiceMeta;
+import com.github.aureliano.srvraml.helper.RamlHelper;
 
 public class ServiceGenerator extends AbstractCodeGenerator {
 
@@ -16,22 +20,42 @@ public class ServiceGenerator extends AbstractCodeGenerator {
 	
 	@Override
 	public void execute() {
-		Collection<Resource> resources = super.raml.getResources().values();;
-		if (resources.isEmpty()) {
+		Set<ServiceMeta> services = this.getMappedServices(super.raml.getResources().values());
+		if (services.isEmpty()) {
 			super.logger.warn("There's not any service/resource mapped. Skipping service generation.");
 			return;
 		}
-		
-		for (Resource resource : resources) {
-			ServiceBuilder builder = this.createServiceBuilder(resource).build();
-			ClassMeta clazz = builder.getClazz();
-			
-			super.logger.info("Generated class: " + clazz.getPackageName() + "." + clazz.getClassName());
-			super.logger.debug(clazz.toString());
+
+		for (ServiceMeta service : services) {			
+			try { 
+				ServiceBuilder builder = this.createServiceBuilder(service).build();
+				ClassMeta clazz = builder.getClazz();
+
+				super.logger.info("Generated class: " + clazz.getCanonicalClassName());
+				super.logger.debug(clazz.toString());
+			} catch (IllegalArgumentException ex) {
+				super.logger.warn(ex.getMessage());
+			}
 		}
 	}
 	
-	private ServiceBuilder createServiceBuilder(Resource resource) {
-		return CodeBuilder.create(GeneratorType.SERVICE).parse(super.basePackageName + ".gen", resource.getUri(), resource);
+	private Set<ServiceMeta> getMappedServices(Collection<Resource> resources) {
+		Set<ServiceMeta> services = new HashSet<ServiceMeta>();
+		
+		for (Resource resource : resources) {
+			ServiceMeta service = RamlHelper.resourceToService(resource);
+			services.add(service);
+			
+			if (!resource.getResources().isEmpty()) {
+				service.setNextServices(RamlHelper.resourcesToServices(resource.getResources().values()));
+				services.addAll(this.getMappedServices(resource.getResources().values()));
+			}
+		}
+		
+		return services;
+	}
+	
+	private ServiceBuilder createServiceBuilder(ServiceMeta service) {
+		return CodeBuilder.create(GeneratorType.SERVICE).parse(super.basePackageName + ".gen", service.getUri(), service);
 	}
 }

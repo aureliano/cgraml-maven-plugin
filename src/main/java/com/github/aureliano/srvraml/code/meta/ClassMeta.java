@@ -1,18 +1,20 @@
 package com.github.aureliano.srvraml.code.meta;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ClassMeta {
 
 	private String packageName;
 	private String className;
 	private String javaDoc;
-	private List<FieldMeta> fields;
+	private Set<FieldMeta> fields;
 	private List<MethodMeta> methods;
 	
 	public ClassMeta() {
-		this.fields = new ArrayList<FieldMeta>();
+		this.fields = new HashSet<FieldMeta>();
 		this.methods = new ArrayList<MethodMeta>();
 	}
 
@@ -43,11 +45,11 @@ public class ClassMeta {
 		return this;
 	}
 
-	public List<FieldMeta> getFields() {
+	public Set<FieldMeta> getFields() {
 		return fields;
 	}
 
-	public ClassMeta withFields(List<FieldMeta> fields) {
+	public ClassMeta withFields(Set<FieldMeta> fields) {
 		this.fields = fields;
 		return this;
 	}

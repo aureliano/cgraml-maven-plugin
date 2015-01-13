@@ -2,7 +2,9 @@ package com.github.aureliano.srvraml.code.builder;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -16,6 +18,7 @@ import com.sun.codemodel.JDefinedClass;
 public class ModelBuilder implements IBuilder {
 
 	private ClassMeta clazz;
+	private static final Set<String> GENERATED_CLASSES = new HashSet<String>();
 	
 	protected ModelBuilder() {
 		super();
@@ -38,6 +41,10 @@ public class ModelBuilder implements IBuilder {
 			.withJavaDoc(javaDoc)
 			.withClassName(StringUtils.capitalize(entity));
 		
+		if (GENERATED_CLASSES.contains(this.clazz.getCanonicalClassName())) {
+			throw new IllegalArgumentException("Class " + this.clazz.getCanonicalClassName() + " was already generated before. Skipping!");
+		}
+		
 		for (String fieldName : properties.keySet()) {
 			Map<String, String> property = properties.get(fieldName);
 			property.put("name", fieldName);
@@ -49,6 +56,7 @@ public class ModelBuilder implements IBuilder {
 				.addMethod(CodeBuilderHelper.createSetterMethod(attribute));
 		}
 
+		GENERATED_CLASSES.add(this.clazz.getCanonicalClassName());
 		return this;
 	}
 	

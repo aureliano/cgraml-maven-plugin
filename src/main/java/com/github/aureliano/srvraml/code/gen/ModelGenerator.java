@@ -24,11 +24,15 @@ public class ModelGenerator extends AbstractCodeGenerator {
 			String entity = schema.keySet().iterator().next();
 			String json = schema.values().iterator().next();
 			
-			ModelBuilder builder = this.createModelBuilder(entity, json).build();
-			ClassMeta clazz = builder.getClazz();
-			
-			super.logger.info("Generated class: " + clazz.getPackageName() + "." + clazz.getClassName());
-			super.logger.debug(clazz.toString());
+			try { 
+				ModelBuilder builder = this.createModelBuilder(entity, json).build();
+				ClassMeta clazz = builder.getClazz();
+
+				super.logger.info("Generated class: " + clazz.getCanonicalClassName());
+				super.logger.debug(clazz.toString());
+			} catch (IllegalArgumentException ex) {
+				super.logger.warn(ex.getMessage());
+			}
 		}
 	}
 	
