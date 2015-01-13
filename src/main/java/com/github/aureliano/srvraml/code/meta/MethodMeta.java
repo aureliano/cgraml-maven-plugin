@@ -74,6 +74,11 @@ public class MethodMeta {
 		this.parameters = parameters;
 	}
 	
+	public MethodMeta addParameter(FieldMeta field) {
+		this.parameters.add(field);
+		return this;
+	}
+	
 	public String getBody() {
 		return body;
 	}

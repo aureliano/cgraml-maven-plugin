@@ -16,6 +16,8 @@ import com.sun.codemodel.JMethod;
 
 public final class CodeBuilderHelper {
 
+	private static final String TAB = "    ";
+	
 	private CodeBuilderHelper() {
 		super();
 	}
@@ -45,7 +47,7 @@ public final class CodeBuilderHelper {
 	public static Class<?> stringToClass(String className) {
 		try {
 			return Class.forName(className);
-		} catch (ClassNotFoundException ex) {
+		} catch (Exception ex) {
 			return null;
 		}
 	}
@@ -146,6 +148,30 @@ public final class CodeBuilderHelper {
 		return m;
 	}
 	
+	public static MethodMeta createBuilderMethod(String className, FieldMeta attribute) {
+		if (attribute == null) {
+			return null;
+		}
+		
+		MethodMeta m = new MethodMeta();
+		
+		m.setName("with" + StringUtils.capitalize(attribute.getName()));
+		m.setVisibility(Visibility.PUBLIC);
+		m.setStaticMethod(false);
+		m.setFinalMethod(false);
+		m.setReturnType(className);
+		m.setParameters(Arrays.asList(attribute));
+		m.setBody(new StringBuilder()
+			.append(String.format("this.%s = %s;", attribute.getName(), attribute.getName()))
+			.append("\n")
+			.append(tabulation(2))
+			.append("return this;")
+			.toString()
+		);
+		
+		return m;
+	}
+	
 	public static MethodMeta createGetterMethod(FieldMeta attribute) {
 		if (attribute == null) {
 			return null;
@@ -162,5 +188,14 @@ public final class CodeBuilderHelper {
 		m.setBody(String.format("return this.%s;", attribute.getName()));
 		
 		return m;
+	}
+	
+	public static String tabulation(int times) {
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < times; i++) {
+			b.append(TAB);
+		}
+		
+		return b.toString();
 	}
 }
