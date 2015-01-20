@@ -1,7 +1,9 @@
 package com.github.aureliano.srvraml.code.builder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -201,12 +203,6 @@ public class ServiceBuilder implements IBuilder {
 				method.setReturnType(service.getType());
 			}
 			
-			if (service.getGenericType() != null && CodeBuilderHelper.stringToClass(service.getGenericType()) == null) {
-				method.setGenericReturnType(pkgModel + "." + service.getGenericType());
-			} else {
-				method.setGenericReturnType(service.getGenericType());
-			}
-			
 			if (method.getName().equals("delete")) {
 				FieldMeta param = new FieldMeta();
 				param.setName("id");
@@ -222,10 +218,64 @@ public class ServiceBuilder implements IBuilder {
 			}
 			
 			method.setVisibility(Visibility.PUBLIC);
-			method.setBody("throw new UnsupportedOperationException(\"Method not implemented yet\");");
+			method.setBody(this.constructBody(method));
 			
 			this.clazz.addMethod(method);
 		}
+	}
+	
+	private String constructBody(MethodMeta method) {
+		if (method.getName().equals("get")) {
+			return this.methodGetBody(method);
+		}
+		
+		return "throw new UnsupportedOperationException(\"Method not implemented yet\");";
+	}
+	
+	private String methodGetBody(MethodMeta method) {
+		StringBuilder builder = new StringBuilder("")
+			.append("javax.ws.rs.client.Client client = javax.ws.rs.client.ClientBuilder.newClient();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("javax.ws.rs.client.WebTarget target = client.target(ApiMapService.instance().getBaseUri())")
+			.append(".path(this.url)");
+		
+		List<FieldMeta> parameters = this.classAttributes();
+		if (!parameters.isEmpty()) {
+			for (FieldMeta param : parameters) {
+				builder.append(String.format(".queryParam(\"%s\", %s)", param.getName(), ("this." + param.getName())));
+			}
+		}
+		
+		builder
+			.append(";")		
+			.append("\n\n" + CodeBuilderHelper.tabulation(2))
+			.append("String json = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(String.class);")
+			.append("\n\n" + CodeBuilderHelper.tabulation(2))
+			.append("com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("try {")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("return mapper.readValue(json, " + method.getReturnType() + ".class);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("} catch (Exception ex) {")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("throw new RuntimeException(ex);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("}");
+		
+		return builder.toString();
+	}
+	
+	private List<FieldMeta> classAttributes() {
+		List<FieldMeta> fields = new ArrayList<FieldMeta>();
+		for (FieldMeta f : this.clazz.getFields()) {
+			if (f.getName().equals("url")) {
+				continue;
+			}
+			fields.add(f);
+		}
+		
+		return fields;
 	}
 	
 	public ClassMeta getClazz() {
