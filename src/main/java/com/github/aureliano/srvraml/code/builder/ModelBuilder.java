@@ -53,7 +53,8 @@ public class ModelBuilder implements IBuilder {
 			this.clazz
 				.addField(attribute)
 				.addMethod(CodeBuilderHelper.createGetterMethod(attribute))
-				.addMethod(CodeBuilderHelper.createSetterMethod(attribute));
+				.addMethod(CodeBuilderHelper.createSetterMethod(attribute))
+				.addMethod(CodeBuilderHelper.createBuilderMethod(this.clazz.getClassName(), attribute));
 		}
 
 		GENERATED_CLASSES.add(this.clazz.getCanonicalClassName());

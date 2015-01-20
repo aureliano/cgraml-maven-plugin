@@ -13,6 +13,7 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
 
 public final class CodeBuilderHelper {
 
@@ -64,15 +65,16 @@ public final class CodeBuilderHelper {
 	public static JMethod addMethodToClass(JCodeModel codeModel, JDefinedClass definedClass, MethodMeta method) {
 		JMethod jm = null;
 		Object type = null;
+		int methodMod = methodMod(method);		
 		
 		if (method.getReturnType() == null) {
-			jm = definedClass.method(method.getVisibility().getMod(), codeModel.VOID, method.getName());
+			jm = definedClass.method(methodMod, codeModel.VOID, method.getName());
 		} else {
 			type = createTypeScaffold(codeModel, definedClass, method);
 			if (type instanceof Class<?>) {
-				jm = definedClass.method(method.getVisibility().getMod(), (Class<?>) type, method.getName());
+				jm = definedClass.method(methodMod, (Class<?>) type, method.getName());
 			} else {
-				jm = definedClass.method(method.getVisibility().getMod(), (JClass) type, method.getName());
+				jm = definedClass.method(methodMod, (JClass) type, method.getName());
 			}
 		}
 		
@@ -87,6 +89,19 @@ public final class CodeBuilderHelper {
 		
 		jm.body().directStatement(method.getBody());
 		return jm;
+	}
+	
+	private static int methodMod(MethodMeta method) {
+		int mod = method.getVisibility().getMod();
+		if (method.isStaticMethod()) {
+			mod = mod | JMod.STATIC;
+		}
+		
+		if (method.isFinalMethod()) {
+			mod = mod | JMod.FINAL;
+		}
+		
+		return mod;
 	}
 	
 	private static Object createTypeScaffold(JCodeModel codeModel, JDefinedClass definedClass, FieldMeta field) {
@@ -188,6 +203,15 @@ public final class CodeBuilderHelper {
 		m.setBody(String.format("return this.%s;", attribute.getName()));
 		
 		return m;
+	}
+	
+	public static String sanitizedTypeName(String entity) {
+		if (StringUtils.isEmpty(entity)) {
+			return null;
+		}
+		
+		entity = entity.replaceAll("[{}]*", "");
+		return StringUtils.capitalize(entity.substring(entity.lastIndexOf("/") + 1));
 	}
 	
 	public static String tabulation(int times) {

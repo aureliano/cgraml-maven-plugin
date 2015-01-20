@@ -80,4 +80,14 @@ public class CodeBuilderHelperTest {
 		assertTrue(m.getParameters().isEmpty());
 		assertEquals("return this.special;", m.getBody());
 	}
+	
+	@Test
+	public void testSanitizedTypeName() {
+		assertNull(CodeBuilderHelper.sanitizedTypeName(null));
+		assertNull(CodeBuilderHelper.sanitizedTypeName(""));
+		
+		assertEquals("ResourceName", CodeBuilderHelper.sanitizedTypeName("resourceName"));
+		assertEquals("ResourceName", CodeBuilderHelper.sanitizedTypeName("/rootPath/resourceName"));
+		assertEquals("ResourceId", CodeBuilderHelper.sanitizedTypeName("/rootPath/resourceName/{resourceId}"));
+	}
 }

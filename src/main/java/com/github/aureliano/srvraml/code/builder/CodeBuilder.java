@@ -17,6 +17,7 @@ public final class CodeBuilder {
 		switch (type) {
 			case MODEL : return (T) new ModelBuilder();
 			case SERVICE : return (T) new ServiceBuilder();
+			case API_MAP_SERVICES : return (T) new ApiMapServicesBuilder();
 			default : return null;
 		}
 	}

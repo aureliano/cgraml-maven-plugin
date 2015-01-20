@@ -10,6 +10,7 @@ public final class GeneratorFactory {
 		switch (type) {
 			case MODEL : return new ModelGenerator();
 			case SERVICE : return new ServiceGenerator();
+			case API_MAP_SERVICES : return new ApiMapServicesGenerator();
 			default : return null;
 		}
 	}
