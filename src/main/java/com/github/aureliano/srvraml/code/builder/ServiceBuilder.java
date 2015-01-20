@@ -210,13 +210,7 @@ public class ServiceBuilder implements IBuilder {
 				method.setReturnType(null);
 			}
 			
-			if (method.getName().equals("delete")) {
-				FieldMeta param = new FieldMeta();
-				param.setName("id");
-				param.setType(String.class.getName());
-				
-				method.addParameter(param);
-			} else if (method.getName().equals("post") || method.getName().equals("put") || method.getName().equals("patch")) {
+			if (method.getName().equals("post") || method.getName().equals("put") || method.getName().equals("patch")) {
 				FieldMeta param = new FieldMeta();
 				param.setName("entityResource");
 				param.setType(method.getReturnType());
@@ -236,13 +230,15 @@ public class ServiceBuilder implements IBuilder {
 			return this.methodGetBody(method);
 		} else if (method.getName().equals("post")) {
 			return this.methodPostBody(method);
+		} else if (method.getName().equals("delete")) {
+			return this.methodDeleteBody(method);
 		}
 		
 		return "throw new UnsupportedOperationException(\"Method not implemented yet\");";
 	}
 	
 	private String methodGetBody(MethodMeta method) {
-		StringBuilder builder = new StringBuilder("")
+		StringBuilder builder = new StringBuilder()
 			.append("javax.ws.rs.client.Client client = javax.ws.rs.client.ClientBuilder.newClient();")
 			.append("\n" + CodeBuilderHelper.tabulation(2))
 			.append("javax.ws.rs.client.WebTarget target = client.target(ApiMapService.instance().getBaseUri())")
@@ -276,7 +272,7 @@ public class ServiceBuilder implements IBuilder {
 	}
 	
 	private String methodPostBody(MethodMeta method) {
-		return new StringBuilder("")
+		return new StringBuilder()
 			.append("javax.ws.rs.client.Client client = javax.ws.rs.client.ClientBuilder.newClient();")
 			.append("\n" + CodeBuilderHelper.tabulation(2))
 			.append("javax.ws.rs.client.WebTarget target = client.target(ApiMapService.instance().getBaseUri())")
@@ -297,6 +293,17 @@ public class ServiceBuilder implements IBuilder {
 			.append("throw new RuntimeException(ex);")
 			.append("\n" + CodeBuilderHelper.tabulation(2))
 			.append("}")
+			.toString();
+	}
+	
+	private String methodDeleteBody(MethodMeta method) {
+		return new StringBuilder()
+			.append("javax.ws.rs.client.Client client = javax.ws.rs.client.ClientBuilder.newClient();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("javax.ws.rs.client.WebTarget target = client.target(ApiMapService.instance().getBaseUri())")
+			.append(".path(this.url);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("target.request().delete();")
 			.toString();
 	}
 	
