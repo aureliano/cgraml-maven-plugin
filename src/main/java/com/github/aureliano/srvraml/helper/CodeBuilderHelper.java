@@ -55,10 +55,12 @@ public final class CodeBuilderHelper {
 	
 	public static JFieldVar addAttributeToClass(JCodeModel codeModel, JDefinedClass definedClass, FieldMeta field) {
 		Object type = createTypeScaffold(codeModel, definedClass, field);
+		int fieldMod = attributeMod(field);
+		
 		if (type instanceof Class<?>) {
-			return definedClass.field(field.getVisibility().getMod(), (Class<?>) type, field.getName());
+			return definedClass.field(fieldMod, (Class<?>) type, field.getName());
 		} else {
-			return definedClass.field(field.getVisibility().getMod(), (JClass) type, field.getName());
+			return definedClass.field(fieldMod, (JClass) type, field.getName());
 		}
 	}
 	
@@ -91,13 +93,21 @@ public final class CodeBuilderHelper {
 		return jm;
 	}
 	
+	private static int attributeMod(FieldMeta attribute) {
+		return getMod(attribute.getVisibility(), attribute.isStaticField(), attribute.isFinalField());
+	}
+	
 	private static int methodMod(MethodMeta method) {
-		int mod = method.getVisibility().getMod();
-		if (method.isStaticMethod()) {
+		return getMod(method.getVisibility(), method.isStaticMethod(), method.isFinalMethod());
+	}
+	
+	private static int getMod(Visibility visibility, boolean ehStatic, boolean ehFinal) {
+		int mod = visibility.getMod();
+		if (ehStatic) {
 			mod = mod | JMod.STATIC;
 		}
 		
-		if (method.isFinalMethod()) {
+		if (ehFinal) {
 			mod = mod | JMod.FINAL;
 		}
 		

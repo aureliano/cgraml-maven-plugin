@@ -10,6 +10,8 @@ public class FieldMeta {
 	private String type;
 	private String genericType;
 	private Visibility visibility;
+	private boolean staticField;
+	private boolean finalField;
 	
 	public FieldMeta() {
 		super();
@@ -71,6 +73,22 @@ public class FieldMeta {
 		this.visibility = visibility;
 	}
 	
+	public boolean isStaticField() {
+		return staticField;
+	}
+
+	public void setStaticField(boolean staticField) {
+		this.staticField = staticField;
+	}
+
+	public boolean isFinalField() {
+		return finalField;
+	}
+
+	public void setFinalField(boolean finalField) {
+		this.finalField = finalField;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -44,6 +44,9 @@ public class ApiMapServicesGenerator extends AbstractCodeGenerator {
 	}
 	
 	private ApiMapServicesBuilder createApiMapServicesBuilder(ServiceMeta[] services) {
-		return CodeBuilder.create(GeneratorType.API_MAP_SERVICES).parse(super.basePackageName + ".gen", "ApiMap", services);
+		ApiMapServicesBuilder builder = CodeBuilder.create(GeneratorType.API_MAP_SERVICES);
+		builder.withBaseUri(super.raml.getBaseUri());
+		
+		return builder.parse(super.basePackageName + ".gen", "ApiMap", services);
 	}
 }
