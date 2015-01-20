@@ -75,6 +75,7 @@ public final class RamlHelper {
 				service.setType(CodeBuilderHelper.getJavaType(schemaTypes.get("schema")));
 			} else {
 				service.setType(CodeBuilderHelper.getJavaType(schemaTypes.get("collectionSchema")));
+				service.setGenericType(CodeBuilderHelper.getJavaType(schemaTypes.get("schema")));
 			}
 		}
 		

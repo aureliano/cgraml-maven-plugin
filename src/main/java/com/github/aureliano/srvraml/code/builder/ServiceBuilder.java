@@ -196,11 +196,18 @@ public class ServiceBuilder implements IBuilder {
 		for (ActionMeta action : service.getActions()) {
 			MethodMeta method = new MethodMeta();
 			method.setName(action.getMethod().name().toLowerCase());
+			boolean javaType = CodeBuilderHelper.stringToClass(service.getType()) != null;
 			
-			if (CodeBuilderHelper.stringToClass(service.getType()) == null) {
-				method.setReturnType(pkgModel + "." + service.getType());
-			} else {
+			if (javaType) {
 				method.setReturnType(service.getType());
+			} else {
+				method.setReturnType(pkgModel + "." + service.getType());
+			}
+				
+			if (method.getName().equals("post")) {
+				method.setReturnType((javaType) ? service.getGenericType() : (pkgModel + "." + service.getGenericType()));
+			} else if (method.getName().equals("delete")) {
+				method.setReturnType(null);
 			}
 			
 			if (method.getName().equals("delete")) {
@@ -212,7 +219,7 @@ public class ServiceBuilder implements IBuilder {
 			} else if (method.getName().equals("post") || method.getName().equals("put") || method.getName().equals("patch")) {
 				FieldMeta param = new FieldMeta();
 				param.setName("entityResource");
-				param.setType((method.getGenericReturnType() == null) ? method.getReturnType() : method.getGenericReturnType());
+				param.setType(method.getReturnType());
 				
 				method.addParameter(param);
 			}
@@ -227,6 +234,8 @@ public class ServiceBuilder implements IBuilder {
 	private String constructBody(MethodMeta method) {
 		if (method.getName().equals("get")) {
 			return this.methodGetBody(method);
+		} else if (method.getName().equals("post")) {
+			return this.methodPostBody(method);
 		}
 		
 		return "throw new UnsupportedOperationException(\"Method not implemented yet\");";
@@ -264,6 +273,31 @@ public class ServiceBuilder implements IBuilder {
 			.append("}");
 		
 		return builder.toString();
+	}
+	
+	private String methodPostBody(MethodMeta method) {
+		return new StringBuilder("")
+			.append("javax.ws.rs.client.Client client = javax.ws.rs.client.ClientBuilder.newClient();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("javax.ws.rs.client.WebTarget target = client.target(ApiMapService.instance().getBaseUri())")
+			.append(".path(this.url);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("try {")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("String json = mapper.writeValueAsString(" + method.getParameters().get(0).getName() + ");")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("json = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE).post(javax.ws.rs.client.Entity.entity(json, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE), String.class);")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("return mapper.readValue(json, " + method.getReturnType() + ".class);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("} catch (Exception ex) {")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("throw new RuntimeException(ex);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("}")
+			.toString();
 	}
 	
 	private List<FieldMeta> classAttributes() {

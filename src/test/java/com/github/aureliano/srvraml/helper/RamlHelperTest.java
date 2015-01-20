@@ -52,6 +52,7 @@ public class RamlHelperTest {
 		
 		assertEquals("/products", service.getUri());
 		assertEquals("Products", service.getType());
+		assertEquals("Product", service.getGenericType());
 		
 		assertEquals(2, service.getActions().size());
 		
