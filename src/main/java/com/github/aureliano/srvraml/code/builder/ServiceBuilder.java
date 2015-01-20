@@ -230,11 +230,13 @@ public class ServiceBuilder implements IBuilder {
 			return this.methodGetBody(method);
 		} else if (method.getName().equals("post")) {
 			return this.methodPostBody(method);
+		} else if (method.getName().equals("put")) {
+			return this.methodPutBody(method);
 		} else if (method.getName().equals("delete")) {
 			return this.methodDeleteBody(method);
 		}
 		
-		return "throw new UnsupportedOperationException(\"Method not implemented yet\");";
+		return "throw new UnsupportedOperationException(\"" + method.getName().toUpperCase() + " is a non-standard HTTP method and it is not supported by this generator.\");";
 	}
 	
 	private String methodGetBody(MethodMeta method) {
@@ -285,6 +287,31 @@ public class ServiceBuilder implements IBuilder {
 			.append("String json = mapper.writeValueAsString(" + method.getParameters().get(0).getName() + ");")
 			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append("json = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE).post(javax.ws.rs.client.Entity.entity(json, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE), String.class);")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("return mapper.readValue(json, " + method.getReturnType() + ".class);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("} catch (Exception ex) {")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("throw new RuntimeException(ex);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("}")
+			.toString();
+	}
+	
+	private String methodPutBody(MethodMeta method) {
+		return new StringBuilder()
+			.append("javax.ws.rs.client.Client client = javax.ws.rs.client.ClientBuilder.newClient();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("javax.ws.rs.client.WebTarget target = client.target(ApiMapService.instance().getBaseUri())")
+			.append(".path(this.url);")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("try {")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("String json = mapper.writeValueAsString(" + method.getParameters().get(0).getName() + ");")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append("json = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE).put(javax.ws.rs.client.Entity.entity(json, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE), String.class);")
 			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append("return mapper.readValue(json, " + method.getReturnType() + ".class);")
 			.append("\n" + CodeBuilderHelper.tabulation(2))
