@@ -1,4 +1,4 @@
-ignoratio-maven-plugin
+cgraml-maven-plugin
 =========
 
 ### Overview
@@ -7,7 +7,7 @@ This project is a Maven plugin which aims code generation based on RAML definiti
 ### Installation
 Unfortunatelly this API is not available at Maven Central Repository yet. So at this point you have to install it manually.
 
-Clone this repository with GIT `git clone https://github.com/aureliano/ignoratio-maven-plugin.git` or download source code from release `https://github.com/aureliano/ignoratio/releases/tag/x.x.x`, or even getting the edge source from `https://github.com/aureliano/ignoratio/archive/master.zip`. Extract files and go to project directory. Install locally with Maven by typing `mvn install`.
+Clone this repository with GIT `git clone https://github.com/aureliano/cgraml-maven-plugin.git` or download source code from release `https://github.com/aureliano/cgraml/releases/tag/x.x.x`, or even getting the edge source from `https://github.com/aureliano/cgraml/archive/master.zip`. Extract files and go to project directory. Install locally with Maven by typing `mvn install`.
 
 ### Usage
 
@@ -17,7 +17,7 @@ After installation from source code all you have to do is add it as a plugin int
   <plugins>
     <plugin>
       <groupId>com.github.aureliano</groupId>
-      <artifactId>ignoratio-maven-plugin</artifactId>
+      <artifactId>cgraml-maven-plugin</artifactId>
       <version>x.x.x</version>
       <configuration>
         <sourceDirectory>${project.basedir}</sourceDirectory>
