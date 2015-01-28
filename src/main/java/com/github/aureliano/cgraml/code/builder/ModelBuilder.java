@@ -1,8 +1,10 @@
 package com.github.aureliano.cgraml.code.builder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +13,9 @@ import org.apache.commons.lang.StringUtils;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
 import com.github.aureliano.cgraml.code.meta.MethodMeta;
+import com.github.aureliano.cgraml.code.meta.Visibility;
 import com.github.aureliano.cgraml.helper.CodeBuilderHelper;
+import com.github.aureliano.cgraml.helper.GeneratorHelper;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 
@@ -56,11 +60,13 @@ public class ModelBuilder implements IBuilder {
 				.addMethod(CodeBuilderHelper.createSetterMethod(attribute))
 				.addMethod(CodeBuilderHelper.createBuilderMethod(this.clazz.getClassName(), attribute));
 		}
+		
+		this.addLinkedDataMethods(map.get("$linkedData"));
 
 		GENERATED_CLASSES.add(this.clazz.getCanonicalClassName());
 		return this;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public ModelBuilder build() {
@@ -92,6 +98,99 @@ public class ModelBuilder implements IBuilder {
 	private void appendClassAttributes(JCodeModel codeModel, JDefinedClass definedClass) {
 		for (FieldMeta field : this.clazz.getFields()) {
 			CodeBuilderHelper.addAttributeToClass(codeModel, definedClass, field);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void addLinkedDataMethods(Object map) {
+		if (map == null) {
+			return;
+		}
+		
+		Map<String, Object> linkedData = (Map<String, Object>) map;
+		for (String key : linkedData.keySet()) {
+			Object services = linkedData.get(key);
+			if (services == null || ((List<?>) services).isEmpty()) {
+				throw new IllegalArgumentException("Malformed $linkedData schema.");
+			}
+			
+			MethodMeta method = this.createLinkedDataMethodMeta(key, (List<String>) linkedData.get(key));
+			this.clazz.addMethod(method);
+		}
+	}
+	
+	private MethodMeta createLinkedDataMethodMeta(String name, List<String> services) {
+		MethodMeta method = new MethodMeta();
+		
+		method.setName("get" + StringUtils.capitalize(name));
+		method.setVisibility(Visibility.PUBLIC);
+		method.setReturnType(this.getLinkedDataMethodReturnType(services));
+		method.setBody(this.getLinkedDataMethodBody(services));
+		
+		return method;
+	}
+	
+	private String getLinkedDataMethodBody(List<String> services) {
+		StringBuilder builder = new StringBuilder();
+		builder
+			.append("return ")
+			.append(this.clazz.getPackageName().replace(".model", ".service."))
+			.append("ApiMapService.instance()")
+			.append("\n" + CodeBuilderHelper.tabulation(3));
+		
+		for (String service : services) {
+			String type = CodeBuilderHelper.sanitizedTypeName(service);
+			String serviceMethodName = type.substring(0, 1).toLowerCase() + type.substring(1);
+			String parameterName = this.getLinkedDataMethodParameterName(service);
+			
+			builder.append(String.format("._%s(%s)", serviceMethodName, parameterName));
+		}
+		
+		return builder
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append(".httpGet();")
+			.toString();
+	}
+	
+	private String getLinkedDataMethodParameterName(String service) {
+		String type = CodeBuilderHelper.sanitizedTypeName(service);
+		
+		if (service.endsWith("}")) {
+			List<String> names = new ArrayList<String>();
+			for (FieldMeta field : this.clazz.getFields()) {
+				if (type.endsWith(StringUtils.capitalize(field.getName()))) {
+					names.add(field.getName());
+				}
+			}
+			
+			int max = 0, index = 0;
+			for (int i = 0; i < names.size(); i++) {
+				if (max < names.get(i).length()) {
+					max = names.get(i).length();
+					index = i;
+				}
+			}
+			
+			return (names.isEmpty()) ? "null" : "this." + names.get(index);
+		}
+		
+		return "";
+	}
+	
+	private String getLinkedDataMethodReturnType(List<String> services) {
+		Map<?, ?> map = (Map<?, ?>) GeneratorHelper.getDataFromCurrentRamlHelper(services);
+		if (map.get("type") != null) {
+			Map<String, Map<String, ?>> type = (Map<String, Map<String, ?>>) map.get("type");
+			String key = type.keySet().iterator().next();
+			Map<String, String> schemaTypes = (Map<String, String>) type.get(key);
+			
+			if (StringUtils.isEmpty(schemaTypes.get("collectionSchema"))) {
+				return CodeBuilderHelper.getJavaType(schemaTypes.get("schema"));
+			} else {
+				return CodeBuilderHelper.getJavaType(schemaTypes.get("collectionSchema"));
+			}
+		} else {
+			return Object.class.getName();
 		}
 	}
 

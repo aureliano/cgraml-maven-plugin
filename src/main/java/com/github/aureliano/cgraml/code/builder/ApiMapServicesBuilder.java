@@ -89,7 +89,7 @@ public class ApiMapServicesBuilder implements IBuilder {
 		method.setReturnType(name + "Service");
 		
 		name = name.substring(0, 1).toLowerCase() + name.substring(1);
-		method.setName(name);
+		method.setName("_" + name);
 		method.setVisibility(Visibility.PUBLIC);
 		
 		method.setBody(String.format("return new %s(\"\");", (StringUtils.capitalize(name) + "Service")));

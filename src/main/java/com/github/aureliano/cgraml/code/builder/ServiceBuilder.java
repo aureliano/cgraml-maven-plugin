@@ -159,13 +159,13 @@ public class ServiceBuilder implements IBuilder {
 			method.setReturnType(name + "Service");
 			
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
-			method.setName(name);
+			method.setName("_" + name);
 			method.setVisibility(Visibility.PUBLIC);
 			
 			Matcher matcher = Pattern.compile("/?\\{[\\w\\d]+\\}$").matcher(s.getUri());
 			if (matcher.find()) {
 				FieldMeta field = new FieldMeta();
-				field.setName(method.getName());
+				field.setName(method.getName().replaceFirst("_", ""));
 				field.setType(String.class.getName());
 				
 				method.addParameter(field);
@@ -195,7 +195,7 @@ public class ServiceBuilder implements IBuilder {
 	private void addHttpAccessMethodsToClass(String pkgModel, ServiceMeta service) {
 		for (ActionMeta action : service.getActions()) {
 			MethodMeta method = new MethodMeta();
-			method.setName(action.getMethod().name().toLowerCase());
+			method.setName("http" + StringUtils.capitalize(action.getMethod().name().toLowerCase()));
 			boolean javaType = CodeBuilderHelper.stringToClass(service.getType()) != null;
 			
 			if (javaType) {
@@ -204,13 +204,13 @@ public class ServiceBuilder implements IBuilder {
 				method.setReturnType(pkgModel + "." + service.getType());
 			}
 				
-			if (method.getName().equals("post")) {
+			if (method.getName().equals("httpPost")) {
 				method.setReturnType((javaType) ? service.getGenericType() : (pkgModel + "." + service.getGenericType()));
-			} else if (method.getName().equals("delete")) {
+			} else if (method.getName().equals("httpDelete")) {
 				method.setReturnType(null);
 			}
 			
-			if (method.getName().equals("post") || method.getName().equals("put") || method.getName().equals("patch")) {
+			if (method.getName().equals("httpPost") || method.getName().equals("httpPut") || method.getName().equals("httpPatch")) {
 				FieldMeta param = new FieldMeta();
 				param.setName("entityResource");
 				param.setType(method.getReturnType());
@@ -226,13 +226,13 @@ public class ServiceBuilder implements IBuilder {
 	}
 	
 	private String constructBody(MethodMeta method) {
-		if (method.getName().equals("get")) {
+		if (method.getName().equals("httpGet")) {
 			return this.methodGetBody(method);
-		} else if (method.getName().equals("post")) {
+		} else if (method.getName().equals("httpPost")) {
 			return this.methodPostBody(method);
-		} else if (method.getName().equals("put")) {
+		} else if (method.getName().equals("httpPut")) {
 			return this.methodPutBody(method);
-		} else if (method.getName().equals("delete")) {
+		} else if (method.getName().equals("httpDelete")) {
 			return this.methodDeleteBody(method);
 		}
 		
