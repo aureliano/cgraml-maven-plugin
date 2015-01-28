@@ -40,7 +40,7 @@ public class ServiceParametersBuilder implements IBuilder {
 			throw new IllegalArgumentException("Class " + this.clazz.getCanonicalClassName() + " was already generated before. Skipping!");
 		}
 		
-		ActionMeta action = this.getGetAction(service);
+		ActionMeta action = CodeBuilderHelper.getGetAction(service);
 		if (action == null) {
 			throw new IllegalArgumentException("Service " + service.getUri() + " does not have a GET method. Skipping!");
 		} else if (action.getParameters().isEmpty()) {
@@ -100,16 +100,6 @@ public class ServiceParametersBuilder implements IBuilder {
 			field.setVisibility(Visibility.PRIVATE);
 			this.clazz.addField(field);
 		}
-	}
-	
-	private ActionMeta getGetAction(ServiceMeta service) {
-		for (ActionMeta action : service.getActions()) {
-			if (ActionType.GET.equals(action.getMethod())) {
-				return action;
-			}
-		}
-		
-		return null;
 	}
 	
 	public ClassMeta getClazz() {

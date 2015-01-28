@@ -120,6 +120,8 @@ public class ModelBuilder implements IBuilder {
 			MethodMeta overridedMethod = method.clone();
 			overridedMethod.addParameter(this.createLinkedDataMethodParameter(serviceNames));
 			
+			method.setBody(method.getBody().replaceAll("\\.withParameters\\([\\w\\d]+\\)\\s*", ""));
+			
 			this.clazz.addMethod(method);
 			this.clazz.addMethod(overridedMethod);
 		}
@@ -162,18 +164,23 @@ public class ModelBuilder implements IBuilder {
 		for (String service : services) {
 			String type = CodeBuilderHelper.sanitizedTypeName(service);
 			String serviceMethodName = type.substring(0, 1).toLowerCase() + type.substring(1);
-			String parameterName = this.getLinkedDataMethodParameterName(service);
+			String parameterName = this.getLinkedDataMethodParameterStatement(service);
 			
 			builder.append(String.format("._%s(%s)", serviceMethodName, parameterName));
 		}
 		
+		String paramName = CodeBuilderHelper.sanitizedTypeName(services.get(services.size() - 1));
+		paramName = paramName.substring(0, 1).toLowerCase() + paramName.substring(1);
+		
 		return builder
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append(".withParameters(" + paramName + ")")
 			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append(".httpGet();")
 			.toString();
 	}
 	
-	private String getLinkedDataMethodParameterName(String service) {
+	private String getLinkedDataMethodParameterStatement(String service) {
 		String type = CodeBuilderHelper.sanitizedTypeName(service);
 		
 		if (service.endsWith("}")) {
@@ -192,7 +199,7 @@ public class ModelBuilder implements IBuilder {
 				}
 			}
 			
-			return (names.isEmpty()) ? "null" : "this." + names.get(index);
+			return (names.isEmpty()) ? "null" : "this." + names.get(index) + ".toString()";
 		}
 		
 		return "";

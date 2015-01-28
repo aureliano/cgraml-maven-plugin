@@ -4,9 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.raml.model.ActionType;
 
+import com.github.aureliano.cgraml.code.meta.ActionMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
 import com.github.aureliano.cgraml.code.meta.MethodMeta;
+import com.github.aureliano.cgraml.code.meta.ServiceMeta;
 import com.github.aureliano.cgraml.code.meta.Visibility;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
@@ -222,6 +225,16 @@ public final class CodeBuilderHelper {
 		
 		entity = entity.replaceAll("[{}]*", "");
 		return StringUtils.capitalize(entity.substring(entity.lastIndexOf("/") + 1));
+	}
+
+	public static ActionMeta getGetAction(ServiceMeta service) {
+		for (ActionMeta action : service.getActions()) {
+			if (ActionType.GET.equals(action.getMethod())) {
+				return action;
+			}
+		}
+		
+		return null;
 	}
 	
 	public static String tabulation(int times) {
