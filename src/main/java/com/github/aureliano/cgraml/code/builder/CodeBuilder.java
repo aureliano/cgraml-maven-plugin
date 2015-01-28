@@ -1,6 +1,7 @@
 package com.github.aureliano.cgraml.code.builder;
 
 import com.github.aureliano.cgraml.code.gen.GeneratorType;
+import com.github.aureliano.cgraml.code.gen.ServiceParametersBuilder;
 
 public final class CodeBuilder {
 
@@ -17,6 +18,7 @@ public final class CodeBuilder {
 		switch (type) {
 			case MODEL : return (T) new ModelBuilder();
 			case SERVICE : return (T) new ServiceBuilder();
+			case SERVICE_PARAMETERS : return (T) new ServiceParametersBuilder();
 			case API_MAP_SERVICES : return (T) new ApiMapServicesBuilder();
 			default : return null;
 		}

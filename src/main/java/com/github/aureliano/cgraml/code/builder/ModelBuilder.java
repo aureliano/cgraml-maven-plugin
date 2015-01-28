@@ -114,9 +114,30 @@ public class ModelBuilder implements IBuilder {
 				throw new IllegalArgumentException("Malformed $linkedData schema.");
 			}
 			
-			MethodMeta method = this.createLinkedDataMethodMeta(key, (List<String>) linkedData.get(key));
+			List<String> serviceNames = (List<String>) linkedData.get(key);
+			
+			MethodMeta method = this.createLinkedDataMethodMeta(key, serviceNames);
+			MethodMeta overridedMethod = method.clone();
+			overridedMethod.addParameter(this.createLinkedDataMethodParameter(serviceNames));
+			
 			this.clazz.addMethod(method);
+			this.clazz.addMethod(overridedMethod);
 		}
+	}
+	
+	private FieldMeta createLinkedDataMethodParameter(List<String> services) {
+		if (services.isEmpty()) {
+			return null;
+		}
+		
+		String serviceType = CodeBuilderHelper.sanitizedTypeName(services.get(services.size() - 1));
+		String name = serviceType.substring(0, 1).toLowerCase() + serviceType.substring(1);
+		
+		FieldMeta field = new FieldMeta();
+		field.setName(name);
+		field.setType(this.clazz.getPackageName().replace(".model", ".parameters.") + serviceType + "Parameters");
+		
+		return field;
 	}
 	
 	private MethodMeta createLinkedDataMethodMeta(String name, List<String> services) {

@@ -4,5 +4,6 @@ public enum GeneratorType {
 
 	MODEL,
 	SERVICE,
+	SERVICE_PARAMETERS,
 	API_MAP_SERVICES
 }

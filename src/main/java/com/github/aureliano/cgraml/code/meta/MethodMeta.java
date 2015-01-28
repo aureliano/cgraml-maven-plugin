@@ -86,6 +86,28 @@ public class MethodMeta {
 	public void setBody(String body) {
 		this.body = body;
 	}
+	
+	@Override
+	public MethodMeta clone() {
+		MethodMeta m = new MethodMeta();
+		
+		m.setBody(this.body);
+		m.setFinalMethod(this.finalMethod);
+		m.setGenericReturnType(this.genericReturnType);
+		m.setName(this.name);
+		m.setReturnType(this.returnType);
+		m.setStaticMethod(this.staticMethod);
+		m.setVisibility(this.visibility);
+		
+		List<FieldMeta> params = new ArrayList<FieldMeta>();
+		for (FieldMeta param : this.parameters) {
+			params.add(param);
+		}
+		
+		m.setParameters(params);
+		
+		return m;
+	}
 
 	@Override
 	public String toString() {
