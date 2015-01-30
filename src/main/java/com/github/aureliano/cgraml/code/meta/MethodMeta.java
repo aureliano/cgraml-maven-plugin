@@ -108,6 +108,60 @@ public class MethodMeta {
 		
 		return m;
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (finalMethod ? 1231 : 1237);
+		result = prime * result + ((genericReturnType == null) ? 0 : genericReturnType.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
+		result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
+		result = prime * result + (staticMethod ? 1231 : 1237);
+		result = prime * result + ((visibility == null) ? 0 : visibility.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MethodMeta other = (MethodMeta) obj;
+		if (finalMethod != other.finalMethod)
+			return false;
+		if (genericReturnType == null) {
+			if (other.genericReturnType != null)
+				return false;
+		} else if (!genericReturnType.equals(other.genericReturnType))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (parameters == null) {
+			if (other.parameters != null)
+				return false;
+		} else if (!parameters.equals(other.parameters))
+			return false;
+		if (returnType == null) {
+			if (other.returnType != null)
+				return false;
+		} else if (!returnType.equals(other.returnType))
+			return false;
+		if (staticMethod != other.staticMethod)
+			return false;
+		if (visibility != other.visibility)
+			return false;
+		return true;
+	}
 
 	@Override
 	public String toString() {

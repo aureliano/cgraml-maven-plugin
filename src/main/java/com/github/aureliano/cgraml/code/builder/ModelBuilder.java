@@ -62,9 +62,37 @@ public class ModelBuilder implements IBuilder {
 		}
 		
 		this.addLinkedDataMethods(map.get("$linkedData"));
+		
+		FieldMeta collectionSchemaField = this.collectionModelSchemaField();
+		String interfaceName = (collectionSchemaField == null) ? "IModel" : "ICollectionModel<" + collectionSchemaField.getGenericType() + ">";
+		this.clazz.addInterface(this.clazz.getPackageName() + "." + interfaceName);
+		
+		if (collectionSchemaField != null) {
+			for (MethodMeta m : ModelCollectionSchemaInterfaceBuilder.getAbstractMethods()) {
+				MethodMeta method = m.clone();
+				
+				if (!StringUtils.isEmpty(method.getGenericReturnType())) {
+					method.setGenericReturnType(collectionSchemaField.getGenericType());
+				}
+				
+				method.setBody(this.getAbstractMethodsBody(method));
+				this.clazz.getMethods().remove(method);
+				this.clazz.addMethod(method);
+			}
+		}
 
 		GENERATED_CLASSES.add(this.clazz.getCanonicalClassName());
 		return this;
+	}
+
+	private String getAbstractMethodsBody(MethodMeta method) {
+		if ("getSize".equals(method.getName())) {
+			return "return this.size;";
+		} else if ("getElements".equals(method.getName())) {
+			return "return this.get" + this.clazz.getClassName() + "();";
+		}
+		
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -79,8 +107,9 @@ public class ModelBuilder implements IBuilder {
 			JCodeModel codeModel = new JCodeModel();
 			JDefinedClass definedClass = codeModel._class(this.clazz.getCanonicalClassName());
 			definedClass.javadoc().append(this.clazz.getJavaDoc());
-			if (this.isModelSchema()) {
-				definedClass._implements(codeModel.ref(this.clazz.getPackageName() + ".IModel"));
+			
+			for (String interfaceName : this.clazz.getInterfaces()) {
+				definedClass._implements(codeModel.ref(interfaceName));
 			}
 			
 			this.appendClassAttributes(codeModel, definedClass);
@@ -92,14 +121,14 @@ public class ModelBuilder implements IBuilder {
 		}
 	}
 	
-	private boolean isModelSchema() {
+	private FieldMeta collectionModelSchemaField() {
 		for (FieldMeta attr : this.clazz.getFields()) {
 			if (!StringUtils.isEmpty(attr.getGenericType())) {
-				return false;
+				return attr;
 			}
 		}
 		
-		return true;
+		return null;
 	}
 	
 	private void appendClassMethods(JCodeModel codeModel, JDefinedClass definedClass) {

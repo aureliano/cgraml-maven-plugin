@@ -92,7 +92,10 @@ public final class CodeBuilderHelper {
 			}
 		}
 		
-		jm.body().directStatement(method.getBody());
+		if (!StringUtils.isEmpty(method.getBody())) {
+			jm.body().directStatement(method.getBody());
+		}
+		
 		return jm;
 	}
 	

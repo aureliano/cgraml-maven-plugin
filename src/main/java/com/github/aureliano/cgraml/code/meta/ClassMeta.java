@@ -12,10 +12,12 @@ public class ClassMeta {
 	private String javaDoc;
 	private Set<FieldMeta> fields;
 	private List<MethodMeta> methods;
+	private List<String> interfaces;
 	
 	public ClassMeta() {
 		this.fields = new HashSet<FieldMeta>();
 		this.methods = new ArrayList<MethodMeta>();
+		this.interfaces = new ArrayList<String>();
 	}
 
 	public String getPackageName() {
@@ -75,6 +77,20 @@ public class ClassMeta {
 	
 	public String getCanonicalClassName() {
 		return this.packageName + "." + this.className;
+	}
+	
+	public List<String> getInterfaces() {
+		return interfaces;
+	}
+	
+	public ClassMeta addInterface(String interfaceName) {
+		this.interfaces.add(interfaceName);
+		return this;
+	}
+	
+	public ClassMeta withInterfaces(List<String> interfaces) {
+		this.interfaces = interfaces;
+		return this;
 	}
 	
 	@Override

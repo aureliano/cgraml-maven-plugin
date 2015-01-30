@@ -21,6 +21,7 @@ public final class CodeBuilder {
 			case SERVICE_PARAMETERS : return (T) new ServiceParametersBuilder();
 			case API_MAP_SERVICES : return (T) new ApiMapServicesBuilder();
 			case MODEL_SCHEMA_INTERFACE : return (T) new ModelSchemaInterfaceBuilder();
+			case MODEL_COLLECTION_SCHEMA_INTERFACE : return (T) new ModelCollectionSchemaInterfaceBuilder();
 			default : return null;
 		}
 	}
