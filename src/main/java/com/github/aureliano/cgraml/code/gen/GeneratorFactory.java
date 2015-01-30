@@ -12,6 +12,7 @@ public final class GeneratorFactory {
 			case SERVICE : return new ServiceGenerator();
 			case SERVICE_PARAMETERS : return new ServiceParametersGenerator();
 			case API_MAP_SERVICES : return new ApiMapServicesGenerator();
+			case MODEL_SCHEMA_INTERFACE : return new ModelSchemaInterfaceGenerator();
 			default : return null;
 		}
 	}
