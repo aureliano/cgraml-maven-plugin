@@ -3,6 +3,7 @@ package com.github.aureliano.cgraml.code.gen;
 import java.util.Set;
 
 import com.github.aureliano.cgraml.code.builder.CodeBuilder;
+import com.github.aureliano.cgraml.code.builder.ServiceParametersBuilder;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.ServiceMeta;
 import com.github.aureliano.cgraml.helper.GeneratorHelper;

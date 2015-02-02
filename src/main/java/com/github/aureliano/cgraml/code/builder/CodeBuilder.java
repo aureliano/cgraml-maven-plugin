@@ -1,7 +1,6 @@
 package com.github.aureliano.cgraml.code.builder;
 
 import com.github.aureliano.cgraml.code.gen.GeneratorType;
-import com.github.aureliano.cgraml.code.gen.ServiceParametersBuilder;
 
 public final class CodeBuilder {
 
@@ -23,6 +22,7 @@ public final class CodeBuilder {
 			case MODEL_SCHEMA_INTERFACE : return (T) new ModelSchemaInterfaceBuilder();
 			case MODEL_COLLECTION_SCHEMA_INTERFACE : return (T) new ModelCollectionSchemaInterfaceBuilder();
 			case SERVICE_FETCH_INTERFACE : return (T) new ServiceFetchInterfaceBuilder();
+			case SERVICE_PARAMETERS_INTERFACE : return (T) new ServiceParametersInterfaceBuilder();
 			default : return null;
 		}
 	}

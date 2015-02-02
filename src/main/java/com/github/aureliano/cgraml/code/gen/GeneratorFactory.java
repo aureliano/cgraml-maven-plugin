@@ -15,6 +15,7 @@ public final class GeneratorFactory {
 			case MODEL_SCHEMA_INTERFACE : return new ModelSchemaInterfaceGenerator();
 			case MODEL_COLLECTION_SCHEMA_INTERFACE : return new ModelCollectionSchemaInterfaceGenerator();
 			case SERVICE_FETCH_INTERFACE : return new ServiceFetchInterfaceGenerator();
+			case SERVICE_PARAMETERS_INTERFACE : return new ServiceParametersInterfaceGenerator();
 			default : return null;
 		}
 	}

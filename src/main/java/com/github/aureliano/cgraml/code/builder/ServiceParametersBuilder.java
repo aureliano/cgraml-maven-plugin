@@ -1,12 +1,9 @@
-package com.github.aureliano.cgraml.code.gen;
+package com.github.aureliano.cgraml.code.builder;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.raml.model.ActionType;
-
-import com.github.aureliano.cgraml.code.builder.IBuilder;
 import com.github.aureliano.cgraml.code.meta.ActionMeta;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
