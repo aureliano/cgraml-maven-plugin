@@ -14,6 +14,7 @@ public final class GeneratorFactory {
 			case API_MAP_SERVICES : return new ApiMapServicesGenerator();
 			case MODEL_SCHEMA_INTERFACE : return new ModelSchemaInterfaceGenerator();
 			case MODEL_COLLECTION_SCHEMA_INTERFACE : return new ModelCollectionSchemaInterfaceGenerator();
+			case SERVICE_FETCH_INTERFACE : return new ServiceFetchInterfaceGenerator();
 			default : return null;
 		}
 	}

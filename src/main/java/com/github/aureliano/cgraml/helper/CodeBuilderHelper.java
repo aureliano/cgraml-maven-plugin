@@ -126,27 +126,26 @@ public final class CodeBuilderHelper {
 		}
 		
 		Class<?> attrType = CodeBuilderHelper.stringToClass(field.getType());
-		JClass jattrType = null;
 		
-		if (attrType == null) {
-			jattrType = codeModel.ref(field.getType());
-		}
 		
 		if (field.getGenericType() == null) {
-			return (attrType != null) ? attrType : jattrType;
+			return (attrType != null) ? attrType : codeModel.ref(field.getType());
 		} else {
-			attrType = CodeBuilderHelper.stringToClass(field.getGenericType());
-			jattrType = null;
+			Class<?> genAttrType = CodeBuilderHelper.stringToClass(field.getGenericType());
 			JClass jfield = null;
 			
-			if (attrType == null) {
-				jattrType = codeModel.ref(field.getGenericType());
-			}
-			
-			if (attrType != null) {
-				jfield = codeModel.ref(List.class).narrow(attrType);
+			if (genAttrType != null) {
+				if (attrType != null) {
+					jfield = codeModel.ref(attrType).narrow(genAttrType);
+				} else {
+					jfield = codeModel.ref(field.getType()).narrow(genAttrType);
+				}
 			} else {
-				jfield = codeModel.ref(List.class).narrow(jattrType);
+				if (attrType != null) {
+					jfield = codeModel.ref(attrType).narrow(codeModel.ref(field.getGenericType()));
+				} else {
+					jfield = codeModel.ref(field.getType()).narrow(codeModel.ref(field.getGenericType()));
+				}
 			}
 			
 			return jfield;
