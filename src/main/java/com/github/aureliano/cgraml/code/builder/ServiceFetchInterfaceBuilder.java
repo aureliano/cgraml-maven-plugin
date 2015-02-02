@@ -60,8 +60,8 @@ public class ServiceFetchInterfaceBuilder implements IBuilder {
 			JDefinedClass definedClass = codeModel._class(this.clazz.getCanonicalClassName(), ClassType.INTERFACE);
 			definedClass.javadoc().append(this.clazz.getJavaDoc());
 			
-			codeModel.ref(this.clazz.getPackageName().replace(".service", ".model.ICollectionModel"));
-			definedClass.generify("T extends ICollectionModel<?>");
+			String genericType = this.clazz.getPackageName().replace(".service", ".model.ICollectionModel");
+			definedClass.generify("T extends " + genericType + "<?>");
 			
 			this.appendClassMethods(codeModel, definedClass);
 			
@@ -109,7 +109,7 @@ public class ServiceFetchInterfaceBuilder implements IBuilder {
 		
 		method.setName("getParameters");
 		method.setVisibility(Visibility.PUBLIC);
-		method.setReturnType("IServiceParameters");
+		method.setReturnType(ServiceFetchInterfaceGenerator.PACKAGE_NAME.replace(".service", ".parameters.IServiceParameters"));
 		
 		return method;
 	}
