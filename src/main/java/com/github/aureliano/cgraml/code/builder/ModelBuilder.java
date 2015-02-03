@@ -4,18 +4,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.github.aureliano.cgraml.code.gen.EagerDataListGenerator;
+import com.github.aureliano.cgraml.code.gen.ServiceFetchInterfaceGenerator;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
 import com.github.aureliano.cgraml.code.meta.MethodMeta;
 import com.github.aureliano.cgraml.code.meta.Visibility;
 import com.github.aureliano.cgraml.helper.CodeBuilderHelper;
-import com.github.aureliano.cgraml.helper.GeneratorHelper;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 
@@ -153,26 +155,48 @@ public class ModelBuilder implements IBuilder {
 			return;
 		}
 		
-		Map<String, Object> linkedData = (Map<String, Object>) map;
-		for (String key : linkedData.keySet()) {
-			Object services = linkedData.get(key);
-			if (services == null || ((List<?>) services).isEmpty()) {
-				throw new IllegalArgumentException("Malformed $linkedData schema.");
-			}
+		Map<String, Object> linkedDataMap = (Map<String, Object>) map;
+		for (String key : linkedDataMap.keySet()) {
+			LinkedHashMap<String, Object> linkedData = (LinkedHashMap<String, Object>) linkedDataMap.get(key);
+			this.validateLinkedDataMap(linkedData);
 			
-			List<String> serviceNames = (List<String>) linkedData.get(key);
+			List<String> serviceNames = (List<String>) linkedData.get("path");
 			
-			MethodMeta method = this.createLinkedDataMethodMeta(key, serviceNames);
-			method.setBody(method.getBody().replaceAll("\\.withParameters\\([\\w\\d]+\\)\\s*", ""));
+			MethodMeta method = this.createLinkedDataMethodMeta(key, linkedData);
+			String body = method.getBody();
+			method.setBody(method.getBody().replaceAll("\\s*\\.withParameters\\([\\w\\d]+\\)\\s*", ""));
 			this.clazz.addMethod(method);
 			
 			if (!serviceNames.get(serviceNames.size() - 1).matches("^/?\\{[\\w\\d]+\\}$")) {
 				MethodMeta overridedMethod = method.clone();
+				overridedMethod.setBody(body);
 				overridedMethod.addParameter(this.createLinkedDataMethodParameter(serviceNames));			
 				
 				this.clazz.addMethod(overridedMethod);
 			}
 		}
+	}
+	
+	private MethodMeta createLinkedDataMethodMeta(String name, LinkedHashMap<String, Object> linkedData) {
+		MethodMeta method = new MethodMeta();
+		
+		method.setName("fetch" + StringUtils.capitalize(name));
+		method.setVisibility(Visibility.PUBLIC);
+		
+		List<String> services = (List<String>) linkedData.get("path");
+		String type = linkedData.get("type").toString();
+		String schema = linkedData.get("schema").toString();
+		String schemaName = schema.substring(0, 1).toUpperCase() + schema.substring(1);
+		
+		if ("collection".equals(type)) {
+			method.setReturnType(List.class.getName() + "<" + schemaName + ">");
+			method.setBody(this.getCollectionLinkedDataMethodBody(schemaName, services));
+		} else if ("single".equals(linkedData.get("type"))) {			
+			method.setReturnType(this.clazz.getPackageName() + "." + schemaName);
+			method.setBody(this.getLinkedDataMethodBody(services));
+		}
+						
+		return method;
 	}
 	
 	private FieldMeta createLinkedDataMethodParameter(List<String> services) {
@@ -190,15 +214,37 @@ public class ModelBuilder implements IBuilder {
 		return field;
 	}
 	
-	private MethodMeta createLinkedDataMethodMeta(String name, List<String> services) {
-		MethodMeta method = new MethodMeta();
+	private String getCollectionLinkedDataMethodBody(String schema, List<String> services) {
+		StringBuilder builder = new StringBuilder();
+		builder
+			.append(this.clazz.getPackageName().replaceAll(".model$", ".service." + ServiceFetchInterfaceGenerator.CLASS_NAME))
+			.append("<?> service = ")
+			.append(this.clazz.getPackageName().replaceAll(".model$", ".service."))
+			.append("ApiMapService.instance()")
+			.append("\n" + CodeBuilderHelper.tabulation(3));
 		
-		method.setName("_get" + StringUtils.capitalize(name));
-		method.setVisibility(Visibility.PUBLIC);
-		method.setReturnType(this.getLinkedDataMethodReturnType(services));
-		method.setBody(this.getLinkedDataMethodBody(services));
+		for (String service : services) {
+			String type = CodeBuilderHelper.sanitizedTypeName(service);
+			String serviceMethodName = type.substring(0, 1).toLowerCase() + type.substring(1);
+			String parameterName = this.getLinkedDataMethodParameterStatement(service);
+			
+			builder.append(String.format("._%s(%s)", serviceMethodName, parameterName));
+		}
 		
-		return method;
+		String paramName = CodeBuilderHelper.sanitizedTypeName(services.get(services.size() - 1));
+		paramName = paramName.substring(0, 1).toLowerCase() + paramName.substring(1);
+		
+		builder
+			.append("\n" + CodeBuilderHelper.tabulation(3))
+			.append(".withParameters(" + paramName + ");")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
+			.append("return new ")
+			.append(this.clazz.getPackageName().replaceAll(".model$", ""))
+			.append("." + EagerDataListGenerator.CLASS_NAME)
+			.append("<" + schema + ">")
+			.append("(service);");
+		
+		return builder.toString();
 	}
 	
 	private String getLinkedDataMethodBody(List<String> services) {
@@ -252,29 +298,22 @@ public class ModelBuilder implements IBuilder {
 		
 		return "";
 	}
-	
-	private String getLinkedDataMethodReturnType(List<String> services) {
-		Map<?, ?> map = (Map<?, ?>) GeneratorHelper.getDataFromCurrentRamlHelper(services);
-		if (map.get("type") != null) {
-			Map<String, Map<String, ?>> type = (Map<String, Map<String, ?>>) map.get("type");
-			String key = type.keySet().iterator().next();
-			Map<String, String> schemaTypes = (Map<String, String>) type.get(key);
-			
-			if (StringUtils.isEmpty(schemaTypes.get("collectionSchema"))) {
-				return CodeBuilderHelper.getJavaType(schemaTypes.get("schema"));
-			} else {
-				return CodeBuilderHelper.getJavaType(schemaTypes.get("collectionSchema"));
-			}
-		} else {
-			return Object.class.getName();
-		}
-	}
 
 	private Map<?, ?> parseJsonString(String json) {
 		try {
 			return OBJECT_MAPPER.readValue(json, HashMap.class);
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
+		}
+	}
+	
+	private void validateLinkedDataMap(LinkedHashMap<String, Object> linkedData) {
+		if (linkedData.get("schema") == null) {
+			throw new IllegalArgumentException("Malformed $linkedData schema. There is no schema.");
+		} else if (linkedData.get("type") == null) {
+			throw new IllegalArgumentException("Malformed $linkedData schema. There is no type.");
+		} else if (linkedData.get("path") == null) {
+			throw new IllegalArgumentException("Malformed $linkedData schema. There is no path");
 		}
 	}
 	

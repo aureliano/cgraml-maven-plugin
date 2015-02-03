@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.github.aureliano.cgraml.code.gen.EagerDataListGenerator;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
 import com.github.aureliano.cgraml.code.meta.MethodMeta;
@@ -105,9 +106,9 @@ public class ApiMapServicesBuilder implements IBuilder {
 		method.setName("fetch" + name);
 		method.setVisibility(Visibility.PUBLIC);
 		method.setReturnType(List.class.getName());
-		method.setGenericReturnType(this.clazz.getPackageName().replaceAll(".service$", ".model." + name));
+		method.setGenericReturnType(this.clazz.getPackageName().replaceAll(".service$", ".model." + service.getGenericType()));
 		
-		method.setBody("throw new UnsupportedOperationException(\"Not implemented yet\");");
+		method.setBody(this.getFetchDataMethodBody(service, false));
 		this.clazz.addMethod(method);
 		
 		MethodMeta overridedMethod = method.clone();
@@ -116,7 +117,28 @@ public class ApiMapServicesBuilder implements IBuilder {
 		param.setType(this.clazz.getPackageName().replaceAll(".service$", ".parameters." + name + "Parameters"));
 		
 		overridedMethod.addParameter(param);
+		overridedMethod.setBody(this.getFetchDataMethodBody(service, true));
 		this.clazz.addMethod(overridedMethod);
+	}
+	
+	private String getFetchDataMethodBody(ServiceMeta service, boolean parameterized) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder
+			.append("return new ")
+			.append(this.clazz.getPackageName().replaceAll(".service$", ""))
+			.append("." + EagerDataListGenerator.CLASS_NAME)
+			.append("<" + this.clazz.getPackageName().replaceAll(".service$", ".model.") + service.getGenericType() + ">")
+			.append("( new " + CodeBuilderHelper.sanitizedTypeName(service.getUri()) + "Service")
+			.append("(\"\")");
+		
+		if (parameterized) {
+			builder.append(".withParameters(parameters)");
+		}
+		
+		builder.append(");");
+		
+		return builder.toString();
 	}
 	
 	private FieldMeta addBaseUriField() {
