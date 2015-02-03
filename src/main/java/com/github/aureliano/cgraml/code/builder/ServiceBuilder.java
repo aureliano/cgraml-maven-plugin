@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.github.aureliano.cgraml.code.gen.ServiceFetchInterfaceGenerator;
+import com.github.aureliano.cgraml.code.gen.ServiceParametersInterfaceGenerator;
 import com.github.aureliano.cgraml.code.meta.ActionMeta;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
@@ -52,6 +54,11 @@ public class ServiceBuilder implements IBuilder {
 		this.addServiceMethodsToClass(this.serviceMeta);
 		this.addHttpAccessMethodsToClass(pkg + ".model", this.serviceMeta);
 		
+		if (this.containsHttpGetCollectionData()) {
+			this.clazz.addInterface(this.clazz.getPackageName() + "." + ServiceFetchInterfaceGenerator.CLASS_NAME);
+			this.addInheritedMethodsImplementation();
+		}
+		
 		GENERATED_CLASSES.add(this.clazz.getCanonicalClassName());
 		return this;
 	}
@@ -68,6 +75,11 @@ public class ServiceBuilder implements IBuilder {
 			JCodeModel codeModel = new JCodeModel();
 			JDefinedClass definedClass = codeModel._class(this.clazz.getCanonicalClassName());
 			definedClass.javadoc().append(this.clazz.getJavaDoc());
+			
+			String narrowClass = this.getModelFetchType();
+			for (String interfaceName : this.clazz.getInterfaces()) {
+				definedClass._implements(codeModel.ref(interfaceName).narrow(codeModel.ref(narrowClass)));
+			}
 			
 			JMethod constructor = definedClass.constructor(Visibility.PUBLIC.getMod());
 			constructor.param(String.class, "url");
@@ -92,6 +104,46 @@ public class ServiceBuilder implements IBuilder {
 	private void appendClassMethods(JCodeModel codeModel, JDefinedClass definedClass) {
 		for (MethodMeta method : this.clazz.getMethods()) {
 			CodeBuilderHelper.addMethodToClass(codeModel, definedClass, method);
+		}
+	}
+	
+	private String getModelFetchType() {
+		return this.clazz.getCanonicalClassName().replaceAll("Service$", "").replace(".service.", ".model.");
+	}
+
+	private void addInheritedMethodsImplementation() {
+		String pkg = this.clazz.getPackageName().replaceAll("\\.model$", ".parameters");
+		String modelFetchType = this.getModelFetchType();
+		String parameterInterface = this.clazz.getPackageName()
+				.replaceAll("\\.service$", ".parameters") + "." + ServiceParametersInterfaceGenerator.CLASS_NAME;
+		
+		for (MethodMeta m : ServiceFetchInterfaceBuilder.getAbstractMethods()) {
+			MethodMeta method = m.clone();
+			if (method.getReturnType().equals("T")) {
+				method.setReturnType(modelFetchType);
+			} else if (method.getReturnType().equals(ServiceParametersInterfaceGenerator.CLASS_NAME)) {
+				method.setReturnType(parameterInterface);
+			}
+			
+			int index = this.clazz.getMethods().indexOf(method);
+			if (index >= 0) {
+				String body = this.clazz.getMethods().get(index).getBody();
+				method.setBody(body);
+				this.clazz.getMethods().remove(index);
+			}
+			
+			if ("withParameters".equals(method.getName())) {
+				method.setReturnType(String.format("%s.%s", pkg, ServiceFetchInterfaceGenerator.CLASS_NAME));
+				method.setGenericReturnType(modelFetchType);
+				
+				FieldMeta field = method.getParameters().get(0);
+				String parameterType = this.clazz.findField(field).getType();
+				method.setBody(method.getBody().replace("this.parameters = parameters", "this.parameters = (" + parameterType + ") parameters"));
+				field.setType(this.clazz.getPackageName()
+						.replaceAll(".service$", ".parameters." + ServiceParametersInterfaceGenerator.CLASS_NAME));
+			}
+			
+			this.clazz.addMethod(method);
 		}
 	}
 
@@ -376,6 +428,26 @@ public class ServiceBuilder implements IBuilder {
 	private boolean serviceHasParameters() {
 		ActionMeta action = CodeBuilderHelper.getGetAction(this.serviceMeta);
 		return ((action != null) && (!action.getParameters().isEmpty()));
+	}
+
+	private boolean containsHttpGetCollectionData() {
+		MethodMeta method = this.getHttpGetCollectionDataMethod();
+		if (method == null) {
+			return false;
+		}
+		
+		String returnType = method.getReturnType().substring(method.getReturnType().lastIndexOf('.') + 1);
+		return this.clazz.getClassName().replaceAll("Service$", "").equals(returnType);
+	}
+	
+	private MethodMeta getHttpGetCollectionDataMethod() {
+		for (MethodMeta method : this.clazz.getMethods()) {
+			if ("httpGet".equals(method.getName())) {
+				return method;
+			}
+		}
+		
+		return null;
 	}
 	
 	public ClassMeta getClazz() {

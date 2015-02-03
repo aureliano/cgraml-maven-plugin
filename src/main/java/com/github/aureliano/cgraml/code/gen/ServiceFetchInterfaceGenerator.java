@@ -7,7 +7,6 @@ import com.github.aureliano.cgraml.code.meta.ClassMeta;
 public class ServiceFetchInterfaceGenerator extends AbstractCodeGenerator {
 
 	public static final String CLASS_NAME = "IServiceFetch";
-	public static String PACKAGE_NAME = null;
 
 	public ServiceFetchInterfaceGenerator() {
 		super();
@@ -15,10 +14,9 @@ public class ServiceFetchInterfaceGenerator extends AbstractCodeGenerator {
 
 	@Override
 	public void execute() {
-		PACKAGE_NAME = super.basePackageName + ".gen.service";
 		ServiceFetchInterfaceBuilder builder = CodeBuilder
 				.create(GeneratorType.SERVICE_FETCH_INTERFACE)
-				.parse(PACKAGE_NAME, CLASS_NAME, null)
+				.parse(super.basePackageName + ".gen.service", CLASS_NAME, null)
 				.build();
 			
 			ClassMeta clazz = builder.getClazz();

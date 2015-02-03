@@ -7,7 +7,6 @@ import com.github.aureliano.cgraml.code.meta.ClassMeta;
 public class ServiceParametersInterfaceGenerator extends AbstractCodeGenerator {
 
 	public static final String CLASS_NAME = "IServiceParameters";
-	public static String PACKAGE_NAME = null;
 
 	public ServiceParametersInterfaceGenerator() {
 		super();
@@ -15,10 +14,9 @@ public class ServiceParametersInterfaceGenerator extends AbstractCodeGenerator {
 
 	@Override
 	public void execute() {
-		PACKAGE_NAME = super.basePackageName + ".gen.parameters";
 		ServiceParametersInterfaceBuilder builder = CodeBuilder
 				.create(GeneratorType.SERVICE_PARAMETERS_INTERFACE)
-				.parse(PACKAGE_NAME, CLASS_NAME, null)
+				.parse(super.basePackageName + ".gen.parameters", CLASS_NAME, null)
 				.build();
 			
 			ClassMeta clazz = builder.getClazz();

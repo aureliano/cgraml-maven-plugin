@@ -1,6 +1,7 @@
 package com.github.aureliano.cgraml.code.builder;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -41,6 +42,7 @@ public class ApiMapServicesBuilder implements IBuilder {
 		
 		for (ServiceMeta service : resources) {
 			this.addServiceMethod(service);
+			this.addFetchDataMethods(service);
 		}
 		
 		return this;
@@ -94,6 +96,27 @@ public class ApiMapServicesBuilder implements IBuilder {
 		
 		method.setBody(String.format("return new %s(\"\");", (StringUtils.capitalize(name) + "Service")));
 		this.clazz.addMethod(method);
+	}
+	
+	private void addFetchDataMethods(ServiceMeta service) {
+		MethodMeta method = new MethodMeta();
+		String name = CodeBuilderHelper.sanitizedTypeName(service.getUri());
+		
+		method.setName("fetch" + name);
+		method.setVisibility(Visibility.PUBLIC);
+		method.setReturnType(List.class.getName());
+		method.setGenericReturnType(this.clazz.getPackageName().replaceAll(".service$", ".model." + name));
+		
+		method.setBody("throw new UnsupportedOperationException(\"Not implemented yet\");");
+		this.clazz.addMethod(method);
+		
+		MethodMeta overridedMethod = method.clone();
+		FieldMeta param = new FieldMeta();
+		param.setName("parameters");
+		param.setType(this.clazz.getPackageName().replaceAll(".service$", ".parameters." + name + "Parameters"));
+		
+		overridedMethod.addParameter(param);
+		this.clazz.addMethod(overridedMethod);
 	}
 	
 	private FieldMeta addBaseUriField() {

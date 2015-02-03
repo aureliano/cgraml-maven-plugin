@@ -68,31 +68,11 @@ public class ModelBuilder implements IBuilder {
 		this.clazz.addInterface(this.clazz.getPackageName() + "." + interfaceName);
 		
 		if (collectionSchemaField != null) {
-			for (MethodMeta m : ModelCollectionSchemaInterfaceBuilder.getAbstractMethods()) {
-				MethodMeta method = m.clone();
-				
-				if (!StringUtils.isEmpty(method.getGenericReturnType())) {
-					method.setGenericReturnType(collectionSchemaField.getGenericType());
-				}
-				
-				method.setBody(this.getAbstractMethodsBody(method));
-				this.clazz.getMethods().remove(method);
-				this.clazz.addMethod(method);
-			}
+			this.addInheritedMethodsImplementation(collectionSchemaField);
 		}
 
 		GENERATED_CLASSES.add(this.clazz.getCanonicalClassName());
 		return this;
-	}
-
-	private String getAbstractMethodsBody(MethodMeta method) {
-		if ("getSize".equals(method.getName())) {
-			return "return this.size;";
-		} else if ("getElements".equals(method.getName())) {
-			return "return this.get" + this.clazz.getClassName() + "();";
-		}
-		
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,6 +99,30 @@ public class ModelBuilder implements IBuilder {
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	private void addInheritedMethodsImplementation(FieldMeta collectionSchemaField) {
+		for (MethodMeta m : ModelCollectionSchemaInterfaceBuilder.getAbstractMethods()) {
+			MethodMeta method = m.clone();
+			
+			if (!StringUtils.isEmpty(method.getGenericReturnType())) {
+				method.setGenericReturnType(collectionSchemaField.getGenericType());
+			}
+			
+			method.setBody(this.getAbstractMethodsBody(method));
+			this.clazz.getMethods().remove(method);
+			this.clazz.addMethod(method);
+		}
+	}
+
+	private String getAbstractMethodsBody(MethodMeta method) {
+		if ("getSize".equals(method.getName())) {
+			return "return this.size;";
+		} else if ("getElements".equals(method.getName())) {
+			return "return this.get" + this.clazz.getClassName() + "();";
+		}
+		
+		return null;
 	}
 	
 	private FieldMeta collectionModelSchemaField() {

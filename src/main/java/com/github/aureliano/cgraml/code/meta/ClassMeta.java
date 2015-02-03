@@ -93,6 +93,23 @@ public class ClassMeta {
 		return this;
 	}
 	
+	public FieldMeta findField(String fieldName) {
+		FieldMeta field = new FieldMeta();
+		field.setName(fieldName);
+		
+		return this.findField(field);
+	}
+	
+	public FieldMeta findField(FieldMeta field) {
+		for (FieldMeta f : this.fields) {
+			if (f.equals(field)) {
+				return f;
+			}
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		return new StringBuilder("[ ")

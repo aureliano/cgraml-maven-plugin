@@ -3,6 +3,7 @@ package com.github.aureliano.cgraml.code.builder;
 import java.io.File;
 
 import com.github.aureliano.cgraml.code.gen.ServiceFetchInterfaceGenerator;
+import com.github.aureliano.cgraml.code.gen.ServiceParametersInterfaceGenerator;
 import com.github.aureliano.cgraml.code.meta.ClassMeta;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
 import com.github.aureliano.cgraml.code.meta.MethodMeta;
@@ -40,7 +41,18 @@ public class ServiceFetchInterfaceBuilder implements IBuilder {
 			.withJavaDoc(javaDoc)
 			.withClassName(entity);
 		
-		for (MethodMeta method : ABSTRACT_METHODS) {
+		for (MethodMeta m : ABSTRACT_METHODS) {
+			MethodMeta method = m.clone();
+			if (ServiceParametersInterfaceGenerator.CLASS_NAME.equals(method.getReturnType())) {
+				method.setReturnType(this.clazz.getPackageName()
+					.replaceAll(".service$", ".parameters." + ServiceParametersInterfaceGenerator.CLASS_NAME));
+			}
+			
+			if (method.hasParameters()) {
+				method.getParameters().get(0).setType(this.clazz.getPackageName()
+					.replaceAll(".service$", ".parameters." + ServiceParametersInterfaceGenerator.CLASS_NAME));
+			}
+			
 			this.clazz.addMethod(method);
 		}
 		
@@ -87,7 +99,7 @@ public class ServiceFetchInterfaceBuilder implements IBuilder {
 		
 		FieldMeta param = new FieldMeta();
 		param.setName("parameters");
-		param.setType(ServiceFetchInterfaceGenerator.PACKAGE_NAME.replace(".service", ".parameters.IServiceParameters"));
+		param.setType("IServiceParameters");
 		
 		method.addParameter(param);
 		
@@ -109,7 +121,7 @@ public class ServiceFetchInterfaceBuilder implements IBuilder {
 		
 		method.setName("getParameters");
 		method.setVisibility(Visibility.PUBLIC);
-		method.setReturnType(ServiceFetchInterfaceGenerator.PACKAGE_NAME.replace(".service", ".parameters.IServiceParameters"));
+		method.setReturnType("IServiceParameters");
 		
 		return method;
 	}

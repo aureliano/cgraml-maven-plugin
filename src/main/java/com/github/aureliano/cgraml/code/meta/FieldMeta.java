@@ -88,6 +88,20 @@ public class FieldMeta {
 	public void setFinalField(boolean finalField) {
 		this.finalField = finalField;
 	}
+	
+	@Override
+	public FieldMeta clone() {
+		FieldMeta f = new FieldMeta();
+		
+		f.setFinalField(this.finalField);
+		f.setGenericType(this.genericType);
+		f.setName(this.name);
+		f.setStaticField(this.staticField);
+		f.setType(this.type);
+		f.setVisibility(this.visibility);
+		
+		return f;
+	}
 
 	@Override
 	public int hashCode() {
