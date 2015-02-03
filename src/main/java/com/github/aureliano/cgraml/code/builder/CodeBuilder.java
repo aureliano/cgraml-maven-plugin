@@ -23,6 +23,7 @@ public final class CodeBuilder {
 			case MODEL_COLLECTION_SCHEMA_INTERFACE : return (T) new ModelCollectionSchemaInterfaceBuilder();
 			case SERVICE_FETCH_INTERFACE : return (T) new ServiceFetchInterfaceBuilder();
 			case SERVICE_PARAMETERS_INTERFACE : return (T) new ServiceParametersInterfaceBuilder();
+			case EAGER_DATA_LIST : return (T) new EagerDataListBuilder();
 			default : return null;
 		}
 	}

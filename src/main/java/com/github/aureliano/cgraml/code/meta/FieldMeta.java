@@ -12,6 +12,7 @@ public class FieldMeta {
 	private Visibility visibility;
 	private boolean staticField;
 	private boolean finalField;
+	private String initVaule;
 	
 	public FieldMeta() {
 		super();
@@ -89,6 +90,14 @@ public class FieldMeta {
 		this.finalField = finalField;
 	}
 	
+	public String getInitValue() {
+		return initVaule;
+	}
+	
+	public void setInitValue(String initValue) {
+		this.initVaule = initValue;
+	}
+	
 	@Override
 	public FieldMeta clone() {
 		FieldMeta f = new FieldMeta();
@@ -99,6 +108,7 @@ public class FieldMeta {
 		f.setStaticField(this.staticField);
 		f.setType(this.type);
 		f.setVisibility(this.visibility);
+		f.setInitValue(this.initVaule);
 		
 		return f;
 	}

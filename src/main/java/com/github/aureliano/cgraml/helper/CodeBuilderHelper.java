@@ -14,6 +14,7 @@ import com.github.aureliano.cgraml.code.meta.Visibility;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
@@ -59,12 +60,19 @@ public final class CodeBuilderHelper {
 	public static JFieldVar addAttributeToClass(JCodeModel codeModel, JDefinedClass definedClass, FieldMeta field) {
 		Object type = createTypeScaffold(codeModel, definedClass, field);
 		int fieldMod = attributeMod(field);
+		JFieldVar jfieldVar = null;
 		
 		if (type instanceof Class<?>) {
-			return definedClass.field(fieldMod, (Class<?>) type, field.getName());
+			jfieldVar = definedClass.field(fieldMod, (Class<?>) type, field.getName());
 		} else {
-			return definedClass.field(fieldMod, (JClass) type, field.getName());
+			jfieldVar = definedClass.field(fieldMod, (JClass) type, field.getName());
 		}
+		
+		if (!StringUtils.isEmpty(field.getInitValue())) {
+			jfieldVar.init(JExpr.direct(field.getInitValue()));
+		}
+		
+		return jfieldVar;
 	}
 	
 	public static JMethod addMethodToClass(JCodeModel codeModel, JDefinedClass definedClass, MethodMeta method) {
