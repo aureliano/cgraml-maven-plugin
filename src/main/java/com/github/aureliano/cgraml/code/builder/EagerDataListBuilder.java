@@ -148,7 +148,7 @@ public class EagerDataListBuilder implements IBuilder {
 			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append(this.clazz.getPackageName() + ".parameters.IServiceParameters params = service.getParameters();")
 			.append("\n" + CodeBuilderHelper.tabulation(3))
-			.append("params.withPages(1).withStart(super.size() - 1);")
+			.append("params.withPages(1).withStart(super.size());")
 			.append("\n\n" + CodeBuilderHelper.tabulation(3))
 			.append(this.clazz.getPackageName() + ".model.ICollectionModel<?> collectionModel = service.withParameters(params).httpGet();")
 			.append("\n" + CodeBuilderHelper.tabulation(3))
