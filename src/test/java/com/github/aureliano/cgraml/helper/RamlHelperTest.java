@@ -70,5 +70,8 @@ public class RamlHelperTest {
 		
 		Map<String, Map<String, ?>> map = (Map<String, Map<String, ?>>) RamlHelper.getResourceMapping(raml.getResource("/products").getResource("/{productId}"));
 		assertEquals("typedMember", map.get("type").keySet().iterator().next());
+		
+		map = (Map<String, Map<String, ?>>) RamlHelper.getResourceMapping(raml.getResource("/test/something"));
+		assertEquals("typedCollection", map.get("type").keySet().iterator().next());
 	}
 }

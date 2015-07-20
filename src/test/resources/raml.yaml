@@ -169,3 +169,12 @@ traits:
     is: [ secured ]
     /presentations: *presentations
 
+/test/something:
+  type: { typedCollection: { schema: presentation, collectionSchema: presentations } }
+  is: [ secured ]
+  get:
+    queryParameters:
+      title:
+        type: string
+        displayName: title
+        description: Filter by title

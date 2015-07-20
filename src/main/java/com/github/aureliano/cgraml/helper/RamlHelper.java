@@ -102,16 +102,33 @@ public final class RamlHelper {
 	@SuppressWarnings("unchecked")
 	protected static Map<String, Map<String, ?>> getResourceMapping(Resource resource) {
 		Map<?, ?> map = Generator.currentRamlMap;
-		String[] keys = resource.getUri().split("/");
+		List<String> keys = getResourcePaths(resource);
 
-		for (int i = 0; i < keys.length; i++) {
-			if (StringUtils.isEmpty(keys[i])) {
+		for (String key : keys) {
+			if (StringUtils.isEmpty(key)) {
 				continue;
 			}
 			
-			map = (Map<?, ?>) map.get("/" + keys[i]);
+			map = (Map<?, ?>) map.get(key);
 		}
 		
 		return (Map<String, Map<String, ?>>) map;
+	}
+	
+	private static List<String> getResourcePaths(Resource resource) {
+		List<String> paths = new ArrayList<String>();
+		String uri = resource.getUri();
+		
+		Resource parent = resource.getParentResource();
+		if (parent != null) {
+			for (String path : getResourcePaths(parent)) {
+				paths.add(path);
+			}
+			uri = uri.replace(parent.getUri(), "");
+		}
+		
+		paths.add(uri);
+		
+		return paths;
 	}
 }
