@@ -26,8 +26,17 @@ public class FieldMeta {
 		FieldMeta f = new FieldMeta();
 		
 		f.setName(data.get("name").toString());
-		f.setType(CodeBuilderHelper.getJavaType(data.get("type").toString()));
-				
+		
+		if (data.get("type") != null) {
+			f.setType(CodeBuilderHelper.getJavaType(data.get("type").toString()));
+		} else {
+			if (data.get("$ref") != null) {
+				f.setType(CodeBuilderHelper.getJavaType(data.get("$ref").toString()));
+			} else {
+				f.setType(Map.class.getName());
+			}
+		}
+		
 		if (data.get("items") != null) {
 			Map<String, String> items = (Map<String, String>) data.get("items");
 			f.setGenericType(CodeBuilderHelper.getJavaType(items.get("$ref")));

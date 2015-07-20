@@ -51,10 +51,17 @@ public class ModelBuilder implements IBuilder {
 			throw new IllegalArgumentException("Class " + this.clazz.getCanonicalClassName() + " was already generated before. Skipping!");
 		}
 		
+		boolean itsCollectionSchema = false;
+		boolean hasSizeProperty = false;
 		for (String fieldName : properties.keySet()) {
 			Map<String, String> property = properties.get(fieldName);
 			property.put("name", fieldName);
+			
+			hasSizeProperty = (!hasSizeProperty) ? fieldName.equals("size") : false;
 			FieldMeta attribute = FieldMeta.parse(property);
+			if (!itsCollectionSchema) {
+				itsCollectionSchema = (StringUtils.isEmpty(attribute.getGenericType()) && hasSizeProperty);
+			}
 			
 			this.clazz
 				.addField(attribute)
@@ -65,7 +72,7 @@ public class ModelBuilder implements IBuilder {
 		
 		this.addLinkedDataMethods(map.get("$linkedData"));
 		
-		FieldMeta collectionSchemaField = this.collectionModelSchemaField();
+		FieldMeta collectionSchemaField = (itsCollectionSchema) ? this.collectionModelSchemaField() : null;
 		String interfaceName = (collectionSchemaField == null) ? "IModel" : "ICollectionModel<" + collectionSchemaField.getGenericType() + ">";
 		this.clazz.addInterface(this.clazz.getPackageName() + "." + interfaceName);
 		
