@@ -83,7 +83,7 @@ public class ServiceBuilder implements IBuilder {
 			
 			JMethod constructor = definedClass.constructor(Visibility.PUBLIC.getMod());
 			constructor.param(String.class, "url");
-			constructor.body().directStatement("this.url = ((url == null || url == \"\") ? \"\" : url) +  \"" + this.serviceMeta.getUri() + "\";");
+			constructor.body().directStatement("this.url = ((url == null || url.equals(\"\")) ? \"\" : url) +  \"" + this.serviceMeta.getUri() + "\";");
 			
 			this.appendClassAttributes(codeModel, definedClass);
 			this.appendClassMethods(codeModel, definedClass);
