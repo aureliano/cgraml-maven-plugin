@@ -345,7 +345,7 @@ public class ServiceBuilder implements IBuilder {
 		builder
 			.append(";")		
 			.append("\n\n" + CodeBuilderHelper.tabulation(2))
-			.append("String json = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(String.class);")
+			.append("String json = target.request().get(String.class);")
 			.append("\n\n" + CodeBuilderHelper.tabulation(2))
 			.append("com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();")
 			.append("\n" + CodeBuilderHelper.tabulation(2))
