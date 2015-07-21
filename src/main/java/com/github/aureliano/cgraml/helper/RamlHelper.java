@@ -86,9 +86,12 @@ public final class RamlHelper {
 			am.setMethod(key);
 			Map<String, QueryParameter> parameters = action.getQueryParameters();
 			for (String paramName : parameters.keySet()) {
+				QueryParameter queryParam = parameters.get(paramName);
 				FieldMeta param = new FieldMeta();
+				
 				param.setName(paramName);
-				param.setType(CodeBuilderHelper.getJavaType(parameters.get(paramName).getType().name()));
+				param.setType(CodeBuilderHelper.getJavaType(queryParam.getType().name()));
+				param.setDefaultValue(queryParam.getDefaultValue());
 				
 				am.addParameter(param);
 			}

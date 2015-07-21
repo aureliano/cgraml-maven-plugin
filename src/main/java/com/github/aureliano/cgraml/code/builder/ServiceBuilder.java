@@ -276,15 +276,15 @@ public class ServiceBuilder implements IBuilder {
 			}
 			
 			method.setVisibility(Visibility.PUBLIC);
-			method.setBody(this.constructBody(method));
+			method.setBody(this.constructBody(action, method));
 			
 			this.clazz.addMethod(method);
 		}
 	}
 	
-	private String constructBody(MethodMeta method) {
+	private String constructBody(ActionMeta action, MethodMeta method) {
 		if (method.getName().equals("httpGet")) {
-			return this.methodGetBody(method);
+			return this.methodGetBody(action, method);
 		} else if (method.getName().equals("httpPost")) {
 			return this.methodPostBody(method);
 		} else if (method.getName().equals("httpPut")) {
@@ -296,7 +296,7 @@ public class ServiceBuilder implements IBuilder {
 		return "throw new UnsupportedOperationException(\"" + method.getName().toUpperCase() + " is a non-standard HTTP method and it is not supported by this generator.\");";
 	}
 	
-	private String methodGetBody(MethodMeta method) {
+	private String methodGetBody(ActionMeta action, MethodMeta method) {
 		StringBuilder builder = new StringBuilder();
 		
 		if (this.serviceHasParameters()) {
@@ -306,8 +306,25 @@ public class ServiceBuilder implements IBuilder {
 			builder
 				.append("if (this.parameters == null) {")
 				.append("\n" + CodeBuilderHelper.tabulation(3))
-				.append("this.parameters = new " + serviceName + "();")
-				.append("\n" + CodeBuilderHelper.tabulation(2) + "}")
+				.append("this.parameters = new " + serviceName + "()");
+			
+			if (!action.getParameters().isEmpty()) {
+				for (FieldMeta param : action.getParameters()) {
+					if (!StringUtils.isEmpty(param.getDefaultValue())) {
+						String defaultValue = param.getDefaultValue();
+						if (String.class.getName().equals(param.getType())) {
+							defaultValue = "\"" + defaultValue + "\"";
+						}
+						
+						builder
+							.append(".with" + StringUtils.capitalize(param.getName()))
+							.append("(").append(defaultValue).append(")");
+					}
+				}
+			}
+			
+			builder
+				.append(";\n" + CodeBuilderHelper.tabulation(2) + "}")
 				.append("\n\n" + CodeBuilderHelper.tabulation(2));
 		}
 		
