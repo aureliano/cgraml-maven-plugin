@@ -2,6 +2,7 @@ package com.github.aureliano.cgraml.code.builder;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -41,6 +42,7 @@ public class EagerDataListBuilder implements IBuilder {
 			.withClassName(StringUtils.capitalize(entity));
 		
 		this.addSerialVersionNumberField();
+		this.addLoggerField();
 		this.addVirtualSizeField();
 		this.addServiceField();
 		
@@ -86,6 +88,8 @@ public class EagerDataListBuilder implements IBuilder {
 	
 	private String getConstructoryBody() {
 		return new StringBuilder()
+			.append("logger.info(\"Fetching data from \" + this.service.getClass().getName() + \" service with 1 page(s) and starting page 0\");")
+			.append("\n" + CodeBuilderHelper.tabulation(2))
 			.append(this.clazz.getPackageName() + ".model.ICollectionModel<?> model = service.httpGet();")
 			.append("\n\n" + CodeBuilderHelper.tabulation(2))
 			.append("this.virtualSize = model.getSize();")
@@ -150,6 +154,8 @@ public class EagerDataListBuilder implements IBuilder {
 			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append("params.withPages(1).withStart(super.size());")
 			.append("\n\n" + CodeBuilderHelper.tabulation(3))
+			.append("logger.info(\"Fetching data from \" + this.service.getClass().getName() + \" service with \" + params.getPages() + \" page(s) and starting page \" + params.getStart());")
+			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append(this.clazz.getPackageName() + ".model.ICollectionModel<?> collectionModel = service.withParameters(params).httpGet();")
 			.append("\n" + CodeBuilderHelper.tabulation(3))
 			.append("super.modCount -= 1;")
@@ -160,7 +166,6 @@ public class EagerDataListBuilder implements IBuilder {
 			.append("\n\n" + CodeBuilderHelper.tabulation(2))
 			.append("return super.get(index);")
 			.toString();
-		
 	}
 
 	private void addSerialVersionNumberField() {
@@ -172,6 +177,19 @@ public class EagerDataListBuilder implements IBuilder {
 		field.setStaticField(true);
 		field.setType("long");
 		field.setInitValue("7773182901940582171L");
+		
+		this.clazz.addField(field);
+	}
+	
+	private void addLoggerField() {
+		FieldMeta field = new FieldMeta();
+		
+		field.setName("logger");
+		field.setVisibility(Visibility.PRIVATE);
+		field.setFinalField(true);
+		field.setStaticField(true);
+		field.setType(Logger.class.getName());
+		field.setInitValue("Logger.getLogger(EagerDataList.class.getName())");
 		
 		this.clazz.addField(field);
 	}
