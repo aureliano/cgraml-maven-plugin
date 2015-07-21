@@ -105,8 +105,13 @@ public class ApiMapServicesBuilder implements IBuilder {
 		
 		method.setName("fetch" + name);
 		method.setVisibility(Visibility.PUBLIC);
-		method.setReturnType(List.class.getName());
-		method.setGenericReturnType(this.clazz.getPackageName().replaceAll(".service$", ".model." + service.getGenericType()));
+		
+		if (!StringUtils.isEmpty(service.getGenericType())) {
+			method.setReturnType(List.class.getName());
+			method.setGenericReturnType(this.clazz.getPackageName().replaceAll(".service$", ".model." + service.getGenericType()));
+		} else {
+			method.setReturnType(this.clazz.getPackageName().replaceAll(".service$", ".model." + service.getType()));
+		}
 		
 		method.setBody(this.getFetchDataMethodBody(service, false));
 		this.clazz.addMethod(method);
@@ -124,19 +129,31 @@ public class ApiMapServicesBuilder implements IBuilder {
 	private String getFetchDataMethodBody(ServiceMeta service, boolean parameterized) {
 		StringBuilder builder = new StringBuilder();
 		
-		builder
-			.append("return new ")
-			.append(this.clazz.getPackageName().replaceAll(".service$", ""))
-			.append("." + EagerDataListGenerator.CLASS_NAME)
-			.append("<" + this.clazz.getPackageName().replaceAll(".service$", ".model.") + service.getGenericType() + ">")
-			.append("( new " + CodeBuilderHelper.sanitizedTypeName(service.getUri()) + "Service")
-			.append("(\"\")");
-		
-		if (parameterized) {
-			builder.append(".withParameters(parameters)");
+		if (!StringUtils.isEmpty(service.getGenericType())) {
+			builder
+				.append("return new ")
+				.append(this.clazz.getPackageName().replaceAll(".service$", ""))
+				.append("." + EagerDataListGenerator.CLASS_NAME)
+				.append("<" + this.clazz.getPackageName().replaceAll(".service$", ".model.") + service.getGenericType() + ">")
+				.append("( new " + CodeBuilderHelper.sanitizedTypeName(service.getUri()) + "Service")
+				.append("(\"\")");
+			
+			if (parameterized) {
+				builder.append(".withParameters(parameters)");
+			}
+			
+			builder.append(");");
+		} else {
+			builder
+				.append("return new " + CodeBuilderHelper.sanitizedTypeName(service.getUri()) + "Service")
+				.append("(\"\")");
+			
+			if (parameterized) {
+				builder.append(".withParameters(parameters)");
+			}
+			
+			builder.append(".httpGet();");
 		}
-		
-		builder.append(");");
 		
 		return builder.toString();
 	}
