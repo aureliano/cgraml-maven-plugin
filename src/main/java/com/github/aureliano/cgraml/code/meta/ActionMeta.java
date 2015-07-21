@@ -9,6 +9,7 @@ public class ActionMeta {
 
 	private ActionType method;
 	private List<FieldMeta> parameters;
+	private boolean typedCollection;
 	
 	public ActionMeta() {
 		this.parameters = new ArrayList<FieldMeta>();
@@ -33,5 +34,13 @@ public class ActionMeta {
 	public ActionMeta addParameter(FieldMeta param) {
 		this.parameters.add(param);
 		return this;
+	}
+	
+	public void setTypedCollection(boolean typedCollection) {
+		this.typedCollection = typedCollection;
+	}
+	
+	public boolean isTypedCollection() {
+		return typedCollection;
 	}
 }

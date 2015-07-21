@@ -96,6 +96,7 @@ public final class RamlHelper {
 				am.addParameter(param);
 			}
 			
+			am.setTypedCollection(resource.getType().matches("[\\w\\d]+[Cc]ollection\\z"));
 			service.addAction(am);
 		}
 		
