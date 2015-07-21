@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.raml.model.Raml;
+import org.raml.model.Resource;
 
 import com.github.aureliano.cgraml.code.gen.Generator;
 import com.github.aureliano.cgraml.code.meta.FieldMeta;
@@ -68,10 +69,10 @@ public class RamlHelperTest {
 		Generator.currentRamlMap = RamlHelper.parseYaml("src/test/resources/raml.yaml");
 		Raml raml = RamlHelper.parseModel("src/test/resources/raml.yaml");
 		
-		Map<String, Map<String, ?>> map = (Map<String, Map<String, ?>>) RamlHelper.getResourceMapping(raml.getResource("/products").getResource("/{productId}"));
-		assertEquals("typedMember", map.get("type").keySet().iterator().next());
+		Map<String, Object> map = (Map<String, Object>) RamlHelper.getResourceMapping(raml.getResource("/products").getResource("/{productId}"));
+		assertEquals("typedMember", ((Map<String, Resource>) map.get("type")).keySet().iterator().next());
 		
-		map = (Map<String, Map<String, ?>>) RamlHelper.getResourceMapping(raml.getResource("/test/something"));
-		assertEquals("typedCollection", map.get("type").keySet().iterator().next());
+		map = (Map<String, Object>) RamlHelper.getResourceMapping(raml.getResource("/test/something"));
+		assertEquals("typedCollection", ((Map<String, Resource>) map.get("type")).keySet().iterator().next());
 	}
 }

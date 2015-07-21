@@ -61,10 +61,10 @@ public final class RamlHelper {
 	}
 
 	public static ServiceMeta resourceToService(Resource resource) {
-		Map<String, Map<String, ?>> map = getResourceMapping(resource);
+		Map<String, Object> map = getResourceMapping(resource);
 		ServiceMeta service = new ServiceMeta();
 		
-		service.setUri(resource.getUri());
+		service.setUri(map.get("uri").toString());
 		
 		if (map.get("type") != null) {
 			Map<String, Map<String, ?>> type = (Map<String, Map<String, ?>>) map.get("type");
@@ -100,19 +100,22 @@ public final class RamlHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected static Map<String, Map<String, ?>> getResourceMapping(Resource resource) {
-		Map<?, ?> map = Generator.currentRamlMap;
+	protected static Map<String, Object> getResourceMapping(Resource resource) {
+		Map<String, Object> map = (Map<String, Object>) Generator.currentRamlMap;
 		List<String> keys = getResourcePaths(resource);
+		String uri = null;
 
 		for (String key : keys) {
 			if (StringUtils.isEmpty(key)) {
 				continue;
 			}
 			
-			map = (Map<?, ?>) map.get(key);
+			uri = key;
+			map = (Map<String, Object>) map.get(key);
 		}
 		
-		return (Map<String, Map<String, ?>>) map;
+		map.put("uri", uri);
+		return map;
 	}
 	
 	private static List<String> getResourcePaths(Resource resource) {
