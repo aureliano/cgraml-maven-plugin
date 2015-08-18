@@ -452,8 +452,7 @@ public class ServiceBuilder implements IBuilder {
 			return false;
 		}
 		
-		String returnType = method.getReturnType().substring(method.getReturnType().lastIndexOf('.') + 1);
-		return this.clazz.getClassName().replaceAll("Service$", "").equals(returnType);
+		return this.serviceMeta.getResourceType().equalsIgnoreCase("typedCollection");
 	}
 	
 	private MethodMeta getHttpGetCollectionDataMethod() {

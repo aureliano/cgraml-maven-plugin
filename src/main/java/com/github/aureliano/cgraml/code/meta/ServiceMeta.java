@@ -7,6 +7,7 @@ public class ServiceMeta {
 
 	private String uri;
 	private String type;
+	private String resourceType;
 	private String genericType;
 	private List<ActionMeta> actions;
 	private List<ServiceMeta> nextServices;
@@ -26,6 +27,14 @@ public class ServiceMeta {
 
 	public String getType() {
 		return type;
+	}
+
+	public void setResourceType(String resourceType) {
+		this.resourceType = resourceType;
+	}
+
+	public String getResourceType() {
+		return resourceType;
 	}
 
 	public void setType(String type) {

@@ -65,6 +65,7 @@ public final class RamlHelper {
 		ServiceMeta service = new ServiceMeta();
 		
 		service.setUri(map.get("uri").toString());
+		service.setResourceType(resource.getType());
 		
 		if (map.get("type") != null) {
 			Map<String, Map<String, ?>> type = (Map<String, Map<String, ?>>) map.get("type");
