@@ -88,7 +88,7 @@ public class EagerDataListBuilder implements IBuilder {
 	
 	private String getConstructoryBody() {
 		return new StringBuilder()
-			.append("logger.info(\"Fetching data from \" + this.service.getClass().getName() + \" service with 1 page(s) and starting page 0\");")
+			.append("logger.info(\"Fetching data from \" + service.getClass().getName() + \" service with 1 page(s) and starting page 0\");")
 			.append("\n" + CodeBuilderHelper.tabulation(2))
 			.append(this.clazz.getPackageName() + ".model.ICollectionModel<?> model = service.httpGet();")
 			.append("\n\n" + CodeBuilderHelper.tabulation(2))
